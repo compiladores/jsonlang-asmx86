@@ -1,4 +1,4 @@
-# Laboratorio 5 de Lenguajes y Compiladores versión 2
+# Implementacion de backend JSONLang a target ASM x86_64
 
 Compilador y VM de JsonLang
 
@@ -14,14 +14,20 @@ make setup
 Instala `deno` 1.26.0 en la carpeta raíz del repositorio, y crea una carpeta
 `.vscode` con la configuración recomendada de vscode.
 
+Se debe tener instalado GCC para poder realizar el ensamblado y linkeo del ASM generado.
+
 ### Cómo hacer el laboratorio
 
 Completar la implementación de `main.ts` de manera que pasen todos los tests
 incluidos.
 
+### Herramientas
+- Codigo C a Assembly x86_64
+https://gcc.godbolt.org/
+
 ### Arquitectura general del proyecto.
 
-Se utilizó una arquitectura más bien funcional, donde el programa se traduce  5 veces. En cada traducción se resuelve un problema.
+Se utilizó una arquitectura más bien funcional, donde el programa se traduce 5 veces. En cada traducción se resuelve un problema.
 
 1. CompIR0Translator: Elimina ("desdobla"/"despliega"/"unfolds") estructuras de control
 2. CompIR1Translator: Elimina variables
@@ -31,15 +37,57 @@ Se utilizó una arquitectura más bien funcional, donde el programa se traduce  
 
 Los algoritmos que debe seguir cada etapa de la traducción se detallan en clase. Los algoritmos aplicados por `CompIR0Translator` y `CompIR1Translator` son similares a los que aplica el intérprete.
 
-### Criterios de evaluación
+## Documentación
 
-La evaluación es objetiva. Al presentar el laboratorio se dará una fecha
-recomendada de entrega. Al entregar el laboratorio se puntuará de la siguiente
-forma.
+### Registros
 
-| Parámetro                                                          | comandos relacionados             | puntaje |
-| ------------------------------------------------------------------ | --------------------------------- | ------- |
-| se entregó el TP                                                   | `make test`, `make test_checksum` | 6       |
-| El último commit del PR tiene fecha previa a la recomendada        | `make test_date`                  | +1      |
-| El último commit del PR tiene fecha previa a la recomendada tardía | `make test_late_date`             | +2      |
-| Se agregaron 5 tests que contienen "extra" en su descripción       | `make test_extra_quantity`        | +2      |
+Los registros XMM son usados para almacenar y operar numeros de punto flotante.
+
+| Registros   | Proposito           | guardado entre funciones | aclaraciones                            |
+| ----------- | ------------------- | ------------------------ | --------------------------------------- |
+| %rax        | return value        | no                       | Acumulador (extendido por %rdx)         |
+| %rbx        | general             | si                       | Base                                    |
+| %rcx        | 4to argumento       | no                       | Contador                                |
+| %rdx        | 3er argumento       | no                       | Data                                    |
+| %rsp        | stack pointer       | si                       | Crece hacia abajo                       |
+| %rbp        | base pointer        | si                       | (usado para stack frames)               |
+| %rsi        | 2do argumento       | no                       | Source index for string operations      |
+| %rdi        | 1er argumento       | no                       | Destination index for string operations |
+| %r8         | 5to argumento       | no                       |                                         |
+| %r9         | 6to argumento       | no                       |                                         |
+| %r10        | general             | no                       |                                         |
+| %r11        | usado para linkear  | si?                      | NO USAR                                 |
+| %r12-r15    | general             | si                       |                                         |
+| %rip        | instruction pointer | no?                      | para referenciar etiquetas              |
+| %xmm0       | valor retorno       | no                       | (extendido por %xmm1)                   |
+| %xmm0-7     | 1do-8vo argumentos  | no                       |                                         |
+| %xmm8-xmm15 | para punto flotante | no                       |                                         |
+
+> #### Fuentes:
+> - http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html
+> - https://wiki.osdev.org/CPU_Registers_x86-64
+> - https://www.cs.oberlin.edu/~bob/cs331/Notes%20on%20x86-64%20Assembly%20Language.pdf
+> - https://en.wikipedia.org/wiki/X86_calling_conventions#System_V_AMD64_ABI
+
+
+### Adressing modes
+`section:disp(base, index, scale)` = `section:[base + index*scale + disp]`
+where `base` and `index` are the optional 64-bit `base` and `index` registers, `disp` is the optional displacement, and scale, taking the values 1, 2, 4, and 8, multiplies index to calculate the address of the operand. If no scale is specified, scale is taken to be 1.
+Section specifies the optional section register for the memory operand, and may override the default section register (NO USADO EN x86_64);
+
+`-4(%ebp)`: base is `%ebp`, disp is `-4`
+
+The x86-64 architecture adds an RIP (instruction pointer relative) addressing. This addressing mode is specified by using ‘rip’ as a base register. Only constant offsets are valid. For example:
+
+`1234(%rip)` = `[rip + 1234]`
+Points to the address 1234 bytes past the end of the current instruction.
+
+`symbol(%rip)` Intel: `[rip + symbol]`
+Points to the symbol in RIP relative way, this is shorter than the default absolute addressing.
+
+Todos los numeros son bytes.
+
+> #### Fuente:
+> - https://sourceware.org/binutils/docs-2.39/as.html#i386_002dMemory
+
+

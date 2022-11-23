@@ -32,5 +32,5 @@ type Binops =
   | "or";
 type Unops = "neg" | "!" | "~";
 
-export type CompiIr5Command = Statement;
-export type CompiIr5 = CompiIr5Command[];
+export type CompIr5Command = Statement;
+export type CompIR5 = CompIr5Command[];

@@ -1,11 +1,11 @@
-import { CompiIr5, CompiIr5Command } from "./CompIR5.ts";
+import { CompIR5, CompIr5Command } from "./CompIR5.ts";
 
 export class CompIr5Vm {
   private stack: number[] = [];
   private memory: Record<number, number> = {};
-  private program: CompiIr5Command[] = [];
+  private program: CompIr5Command[] = [];
   private programCounter = 0;
-  private runOne(command: CompiIr5Command) {
+  private runOne(command: CompIr5Command) {
     const s = this.stack;
     const m = this.memory;
     function monop(f: (x: number) => number) {
@@ -139,7 +139,7 @@ export class CompIr5Vm {
 
     this.programCounter += 1;
   }
-  public feed(commands: CompiIr5Command[]) {
+  public feed(commands: CompIr5Command[]) {
     this.program = [...this.program, ...commands];
   }
   public runUntilFinished() {
@@ -150,7 +150,7 @@ export class CompIr5Vm {
   }
 }
 
-export function execute(ir: CompiIr5) {
+export function execute(ir: CompIR5) {
   const ex = new CompIr5Vm();
   ex.feed(ir);
   return ex.runUntilFinished();

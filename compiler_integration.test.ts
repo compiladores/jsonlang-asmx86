@@ -4,8 +4,8 @@ import {
   assertEquals,
 } from "https://deno.land/std@0.155.0/testing/asserts.ts";
 
-Deno.test("040", () => {
-  const c = run([{
+Deno.test("040", async () => {
+  const c = await run([{
     "set": "i",
     "value": 100,
   }, {
@@ -30,12 +30,12 @@ Deno.test("040", () => {
       "argl": "x",
       "argr": "i",
     },
-  }]);
+  }])
   assertEquals(c, 136);
 });
 
-Deno.test("026", () => {
-  const c = run([{
+Deno.test("026", async () => {
+  const c = await run([{
     "set": "x",
     "value": {
       "unop": "-",
@@ -64,8 +64,8 @@ Deno.test("026", () => {
   assertEquals(c, 88);
 });
 
-Deno.test("029", () => {
-  const c = run([{
+Deno.test("029", async () => {
+  const c = await run([{
     "set": "x",
     "value": 100,
   }, {
@@ -104,8 +104,8 @@ Deno.test("029", () => {
   assertEquals(c, 1);
 });
 
-Deno.test("034", () => {
-  const c = run([{
+Deno.test("034", async () => {
+  const c = await run([{
     "set": "x",
     "value": {
       "unop": "-",
@@ -227,8 +227,8 @@ Deno.test("034", () => {
   assertEquals(c, -50);
 });
 
-Deno.test("028", () => {
-  const c = run([{
+Deno.test("028", async () => {
+  const c = await run([{
     "set": "x",
     "value": {
       "unop": "-",
@@ -270,8 +270,8 @@ Deno.test("028", () => {
   assertEquals(c, 2);
 });
 
-Deno.test("036", () => {
-  const c = run([{
+Deno.test("036", async () => {
+  const c = await run([{
     "set": "x",
     "value": {
       "unop": "-",
@@ -328,8 +328,8 @@ Deno.test("036", () => {
   assertEquals(c, -31);
 });
 
-Deno.test("025", () => {
-  const c = run([{
+Deno.test("025", async () => {
+  const c = await run([{
     "set": "x",
     "value": 1,
   }, {
@@ -355,8 +355,8 @@ Deno.test("025", () => {
   assertEquals(c, 44);
 });
 
-Deno.test("042", () => {
-  const c = run([{
+Deno.test("042", async () => {
+  const c = await run([{
     "set": "x",
     "value": {
       "unop": "-",
@@ -420,8 +420,8 @@ Deno.test("042", () => {
   assertEquals(c, -34);
 });
 
-Deno.test("041", () => {
-  const c = run([{
+Deno.test("041", async () => {
+  const c = await run([{
     "set": "i",
     "value": 100,
   }, {
@@ -451,8 +451,8 @@ Deno.test("041", () => {
   assertEquals(c, 120);
 });
 
-Deno.test("038", () => {
-  const c = run([{
+Deno.test("038", async () => {
+  const c = await run([{
     "set": "x",
     "value": 20,
   }, {
@@ -490,8 +490,8 @@ Deno.test("038", () => {
   assertEquals(c, 1722);
 });
 
-Deno.test("037", () => {
-  const c = run([{
+Deno.test("037", async () => {
+  const c = await run([{
     "set": "x",
     "value": 0,
   }, {
@@ -525,8 +525,8 @@ Deno.test("037", () => {
   assertEquals(c, 66);
 });
 
-Deno.test("035", () => {
-  const c = run([{
+Deno.test("035", async () => {
+  const c = await run([{
     "set": "x",
     "value": {
       "unop": "-",
@@ -567,8 +567,8 @@ Deno.test("035", () => {
   assertEquals(c, 336);
 });
 
-Deno.test("039", () => {
-  const c = run([{
+Deno.test("039", async () => {
+  const c = await run([{
     "set": "x",
     "value": 20,
   }, {
@@ -602,8 +602,8 @@ Deno.test("039", () => {
   assertEquals(c, 42);
 });
 
-Deno.test("030", () => {
-  const c = run([{
+Deno.test("030", async () => {
+  const c = await run([{
     "set": "x",
     "value": 100,
   }, {
@@ -722,8 +722,8 @@ Deno.test("030", () => {
   assertEquals(c, 1);
 });
 
-Deno.test("045", () => {
-  const c = run([{
+Deno.test("045", async () => {
+  const c = await run([{
     "set": "i",
     "value": 100,
   }, {
@@ -762,8 +762,8 @@ Deno.test("045", () => {
   assertEquals(c, 102);
 });
 
-Deno.test("032", () => {
-  const c = run([{
+Deno.test("032", async () => {
+  const c = await run([{
     "set": "x",
     "value": {
       "unop": "-",
@@ -885,8 +885,8 @@ Deno.test("032", () => {
   assertEquals(c, -50);
 });
 
-Deno.test("027", () => {
-  const c = run([{
+Deno.test("027", async () => {
+  const c = await run([{
     "set": "x",
     "value": {
       "unop": "-",
@@ -928,8 +928,8 @@ Deno.test("027", () => {
   assertEquals(c, 3);
 });
 
-Deno.test("031", () => {
-  const c = run([{
+Deno.test("031", async () => {
+  const c = await run([{
     "set": "x",
     "value": {
       "unop": "-",
@@ -1051,8 +1051,8 @@ Deno.test("031", () => {
   assertEquals(c, 2);
 });
 
-Deno.test("033", () => {
-  const c = run([{
+Deno.test("033", async () => {
+  const c = await run([{
     "set": "x",
     "value": {
       "unop": "-",
@@ -1174,8 +1174,8 @@ Deno.test("033", () => {
   assertEquals(c, -50);
 });
 
-Deno.test("006", () => {
-  const c = run([{
+Deno.test("006", async () => {
+  const c = await run([{
     "set": "out",
     "value": {
       "binop": "|",
@@ -1234,16 +1234,16 @@ Deno.test("006", () => {
   assertEquals(c, 15);
 });
 
-Deno.test("001", () => {
-  const c = run([{
+Deno.test("001", async () => {
+  const c = await run([{
     "set": "out",
     "value": 1,
   }]);
   assertEquals(c, 1);
 });
 
-Deno.test("003", () => {
-  const c = run([{
+Deno.test("003", async () => {
+  const c = await run([{
     "set": "out",
     "value": {
       "binop": "and",
@@ -1286,8 +1286,8 @@ Deno.test("003", () => {
   assertEquals(c, 256);
 });
 
-Deno.test("009", () => {
-  const c = run([{
+Deno.test("009", async () => {
+  const c = await run([{
     "set": "out",
     "value": {
       "binop": "^",
@@ -1313,8 +1313,8 @@ Deno.test("009", () => {
   assertAlmostEquals(c, 3.3079296368936, 1e-5);
 });
 
-Deno.test("002", () => {
-  const c = run([{
+Deno.test("002", async () => {
+  const c = await run([{
     "set": "out",
     "value": {
       "binop": "+",
@@ -1325,8 +1325,8 @@ Deno.test("002", () => {
   assertEquals(c, 3);
 });
 
-Deno.test("007", () => {
-  const c = run([{
+Deno.test("007", async () => {
+  const c = await run([{
     "set": "out",
     "value": {
       "binop": "or",
@@ -1385,8 +1385,8 @@ Deno.test("007", () => {
   assertEquals(c, 1);
 });
 
-Deno.test("005", () => {
-  const c = run([{
+Deno.test("005", async () => {
+  const c = await run([{
     "set": "out",
     "value": {
       "binop": "or",
@@ -1437,8 +1437,8 @@ Deno.test("005", () => {
   assertEquals(c, 15);
 });
 
-Deno.test("004", () => {
-  const c = run([{
+Deno.test("004", async () => {
+  const c = await run([{
     "set": "out",
     "value": {
       "binop": "or",
@@ -1473,8 +1473,8 @@ Deno.test("004", () => {
   assertEquals(c, 47);
 });
 
-Deno.test("010", () => {
-  const c = run([{
+Deno.test("010", async () => {
+  const c = await run([{
     "set": "out",
     "value": {
       "binop": "-",
@@ -1491,8 +1491,8 @@ Deno.test("010", () => {
   assertEquals(c, 0);
 });
 
-Deno.test("008", () => {
-  const c = run([{
+Deno.test("008", async () => {
+  const c = await run([{
     "set": "out",
     "value": {
       "binop": "^",
@@ -1507,8 +1507,8 @@ Deno.test("008", () => {
   assertEquals(c, 512.0);
 });
 
-Deno.test("049.semi", () => {
-  const c = run([{
+Deno.test("049.semi", async () => {
+  const c = await run([{
     "function": "add",
     "args": ["x", "y"],
     "block": [{
@@ -1548,8 +1548,8 @@ Deno.test("049.semi", () => {
   assertEquals(c, 5);
 });
 
-Deno.test("047", () => {
-  const c = run([{
+Deno.test("047", async () => {
+  const c = await run([{
     "function": "inc",
     "args": ["x"],
     "block": [{
@@ -1569,8 +1569,8 @@ Deno.test("047", () => {
   assertEquals(c, 11);
 });
 
-Deno.test("050", () => {
-  const c = run([{
+Deno.test("050", async () => {
+  const c = await run([{
     "function": "inc",
     "args": ["x"],
     "block": [{
@@ -1617,8 +1617,8 @@ Deno.test("050", () => {
   assertEquals(c, 7);
 });
 
-Deno.test("051.semi", () => {
-  const c = run([{
+Deno.test("051.semi", async () => {
+  const c = await run([{
     "function": "add_rec",
     "args": ["x", "y"],
     "block": [{
@@ -1653,8 +1653,8 @@ Deno.test("051.semi", () => {
   assertEquals(c, 0);
 });
 
-Deno.test("052", () => {
-  const c = run([{
+Deno.test("052", async () => {
+  const c = await run([{
     "set": "x",
     "value": 0,
   }, {
@@ -1692,8 +1692,8 @@ Deno.test("052", () => {
   assertEquals(c, 6);
 });
 
-Deno.test("048", () => {
-  const c = run([{
+Deno.test("048", async () => {
+  const c = await run([{
     "function": "inc",
     "args": ["x"],
     "block": [{
@@ -1733,8 +1733,8 @@ Deno.test("048", () => {
   assertEquals(c, 5);
 });
 
-Deno.test("020", () => {
-  const c = run([{
+Deno.test("020", async () => {
+  const c = await run([{
     "set": "x",
     "value": 1,
   }, [{
@@ -1750,8 +1750,8 @@ Deno.test("020", () => {
   assertEquals(c, 3);
 });
 
-Deno.test("018", () => {
-  const c = run([{
+Deno.test("018", async () => {
+  const c = await run([{
     "set": "x",
     "value": 1,
   }, [{
@@ -1767,8 +1767,8 @@ Deno.test("018", () => {
   assertEquals(c, 3);
 });
 
-Deno.test("017", () => {
-  const c = run([{
+Deno.test("017", async () => {
+  const c = await run([{
     "set": "x",
     "value": 1,
   }, [{
@@ -1781,8 +1781,8 @@ Deno.test("017", () => {
   assertEquals(c, 1);
 });
 
-Deno.test("019", () => {
-  const c = run([{
+Deno.test("019", async () => {
+  const c = await run([{
     "set": "x",
     "value": 1,
   }, [{
@@ -1798,8 +1798,8 @@ Deno.test("019", () => {
   assertEquals(c, 1);
 });
 
-Deno.test("021", () => {
-  const c = run([{
+Deno.test("021", async () => {
+  const c = await run([{
     "set": "x",
     "value": 1,
   }, [{
@@ -1815,8 +1815,8 @@ Deno.test("021", () => {
   assertEquals(c, 1);
 });
 
-Deno.test("015", () => {
-  const c = run([{
+Deno.test("015", async () => {
+  const c = await run([{
     "set": "x",
     "value": 1,
   }, [{
@@ -1832,8 +1832,8 @@ Deno.test("015", () => {
   assertEquals(c, 2);
 });
 
-Deno.test("016", () => {
-  const c = run([{
+Deno.test("016", async () => {
+  const c = await run([{
     "set": "x",
     "value": 1,
   }, [{
@@ -1849,8 +1849,8 @@ Deno.test("016", () => {
   assertEquals(c, 4);
 });
 
-Deno.test("023", () => {
-  const c = run([[{
+Deno.test("023", async () => {
+  const c = await run([[{
     "set": "x",
     "value": 2,
   }, [{
