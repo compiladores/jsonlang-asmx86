@@ -26,7 +26,7 @@ main:
         leaq    .LC2(%rip), %rdi
 	movq	$10, %rsi
         mov     $1, %al
-	call 	printf@PLT
+	call 	printf
 
         movsd   -24(%rbp), %xmm0
         cvttsd2sil      %xmm0, %eax
