@@ -19,8 +19,8 @@ Deno.test("extra IF", () => {
 
     assertEquals(ir1, [
         "enterBlock",
-        {push: 5},
-        {bz: "l0"},
+        {cmpq: [0, 5]},
+        {je: "l0"},
         {set: "hola", value: 10},
         {lbl: "l0"},
         "exitBlock"
@@ -33,8 +33,8 @@ Deno.test("extra IF", () => {
 
     assertEquals(ir1, [
         "enterBlock",
-        {push: "x"},
-        {bz: "l0"},
+        {cmpq: [0, "x"]},
+        {je: "l0"},
         {set: "hola", value: 10},
         {jmp: "l1"},
 
@@ -57,26 +57,26 @@ Deno.test("extra IF", () => {
 
     assertEquals(ir1, [
         "enterBlock",
-        {push: 0},
-        {bz: "l0"},
+        {cmpq: [0, 0]},
+        {je: "l0"},
         {set: "x", value: 0},
         {jmp: "l4"},
         {lbl: "l0"},
 
-        {push: 1},
-        {bz: "l1"},
+        {cmpq: [0, 1]},
+        {je: "l1"},
         {set: "x", value: 1},
         {jmp: "l4"},
         {lbl: "l1"},
 
-        {push: 2},
-        {bz: "l2"},
+        {cmpq: [0, 2]},
+        {je: "l2"},
         {set: "x", value: 2},
         {jmp: "l4"},
         {lbl: "l2"},
 
-        {push: 3},
-        {bz: "l3"},
+        {cmpq: [0, 3]},
+        {je: "l3"},
         {set: "x", value: 3},
         {jmp: "l4"},
         {lbl: "l3"},
@@ -99,26 +99,26 @@ Deno.test("extra IF", () => {
 
     assertEquals(ir1, [
         "enterBlock",
-        {push: 0},
-        {bz: "l0"},
+        {cmpq: [0, 0]},
+        {je: "l0"},
         {set: "x", value: 0},
         {jmp: "l3"},
         {lbl: "l0"},
 
-        {push: 1},
-        {bz: "l1"},
+        {cmpq: [0, 1]},
+        {je: "l1"},
         {set: "x", value: 1},
         {jmp: "l3"},
         {lbl: "l1"},
 
-        {push: 2},
-        {bz: "l2"},
+        {cmpq: [0, 2]},
+        {je: "l2"},
         {set: "x", value: 2},
         {jmp: "l3"},
         {lbl: "l2"},
 
-        {push: 3},
-        {bz: "l3"},
+        {cmpq: [0, 3]},
+        {je: "l3"},
         {set: "x", value: 3},
         {lbl: "l3"},
 
@@ -140,9 +140,11 @@ Deno.test("extra iterator", () => {
     assertEquals(ir1, [
         "enterBlock",
         {declare: "x", value: 0},
+
         {lbl: "l0"},
-        {push: {binop: "<=", argl: "x", argr: 10}},
-        {bz: "l1"},
+
+        {cmpq: [0, {binop: "<=", argl: "x", argr: 10}]},
+        {je: "l1"},
         {set: "a", value:"x"},
         {set: "x", value: {binop:"+", argl:"x", argr: 1}},
         {jmp:"l0"},
@@ -164,8 +166,8 @@ Deno.test("extra iterator", () => {
         "enterBlock",
         {declare: "x", value: 0},
         {lbl: "l0"},
-        {push: {binop: "<=", argl: "x", argr: 20}},
-        {bz: "l1"},
+        {cmpq: [0, {binop: "<=", argl: "x", argr: 20}]},
+        {je: "l1"},
         {set: "a", value:"x"},
         {set: "x", value: {binop:"+", argl:"x", argr: 2}},
         {jmp:"l0"},
@@ -187,8 +189,8 @@ Deno.test("extra iterator", () => {
         "enterBlock",
         {declare: "y", value: 10},
         {lbl: "l0"},
-        {push: {binop: ">=", argl: "y", argr: -10}},
-        {bz: "l1"},
+        {cmpq: [0,{binop: ">=", argl: "y", argr: -10}]},
+        {je: "l1"},
         {set: "a", value:"y"},
         {set: "y", value: {binop:"+", argl:"y", argr: -1}},
         {jmp:"l0"},
@@ -206,8 +208,8 @@ Deno.test("extra until", () => {
         "enterBlock",
         {set: "b", value: 0},
         { lbl: "l0" },
-        { push: {unop: "!", arg: "x"} },
-        { bz: "l1" },
+        { cmpq: [0,{unop: "!", arg: "x"}] },
+        { je: "l1" },
         {set: "b", value: 0},
         { jmp: "l0" },
         { lbl: "l1" },

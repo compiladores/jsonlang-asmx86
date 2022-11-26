@@ -68,8 +68,8 @@ function translateGeneral(stmt: Statement<Expression>,
       const parte_if = if_list[i]
       
       const content = [
-        {push: parte_if.cond},
-        {bz: labels[i]},
+        {cmpq: [0,parte_if.cond]},
+        {je: labels[i]},
         ...remove_external_block(translateGeneral(parte_if.then, labelFactory, jumps)),
         {jmp: labels[labels.length-1]},      
         {lbl: labels[i]} 
@@ -151,8 +151,8 @@ function translateGeneral(stmt: Statement<Expression>,
     return [
       "enterBlock",
       { lbl: beginWhile },
-      { push: stmt.while },
-      { bz: endWhile },
+      { cmpq: [0,stmt.while] },
+      { je: endWhile },
       ...contenidoWhile,
       { jmp: beginWhile },
       { lbl: endWhile },

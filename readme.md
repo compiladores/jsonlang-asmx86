@@ -93,7 +93,7 @@ Todos los numeros son bytes.
 
 ### Implementacion operadores
 
-| operador  | int             | float          | notas                           |
+| operador  | long             | double          | notas                           |
 | --------- | --------------- | -------------- | ------------------------------- |
 | "+"       | addq            | addsd          |                                 |
 | "-"       | subq            | subsd          |                                 |

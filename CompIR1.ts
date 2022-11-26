@@ -6,9 +6,10 @@
 
 type Label = string;
 export type StatementIR1<Expr> =
-  | { push: Expr }
-  | { bz: Label }
-  | { bnz: Label }
+  | { cmpq: [Expr, Expr]}
+  | { pushq: Expr }
+  | { je: Label }
+  | { jne: Label }
   | { jmp: Label }
   | { declare: string; value: Expr }
   | { set: string; value: Expr }

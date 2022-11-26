@@ -32,9 +32,11 @@ main:
         cvttsd2sil      %xmm0, %eax
         leave
         ret
-.LC0:
-        .long   0
-        .long   1073741824
-.LC1:
-        .long   0
-        .long   1074266112
+.LC0:   // 2.0
+        // .long   0
+        // .long   1073741824
+        .double 2.0
+.LC1:   // 3.0
+        // .long   0
+        // .long   1074266112
+        .double 3.0
