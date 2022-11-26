@@ -117,3 +117,12 @@ Todos los numeros son bytes.
 | "neg"     |negq|xorpd¿?| Tengo que usar el numero específico -2147483648
 | "!"       |||if equal 0; return 1; return 0;
 | "~"       |||bitwise not
+
+
+### Uso de PRINTF (y otras funciones cantidad de parametros variable)
+Para envias parametros float, o double, se tienen que usar los registros `%xmm0 - %xmm7`. Pero antes de llamar la funcion, se debe indicar la cantidad de registros xmm usado, en el registro `%al` (osea `%rax`)
+Pero al parecer, en printf@PLT, con indicar que existen registros de punto flotante (con un numero distinto de 0) alcanza.
+
+> #### Fuente: 
+> https://refspecs.linuxbase.org/elf/x86_64-abi-0.99.pdf
+
