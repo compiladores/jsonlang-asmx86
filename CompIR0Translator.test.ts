@@ -4,7 +4,7 @@
 // stmt do --> parecido a while pero al reves
 
 import { translate } from "./CompIR0Translator.ts";
-import { assert, assertEquals, assertExists, assertInstanceOf, assertNotEquals, assertObjectMatch, assertThrows} from "https://deno.land/std@0.155.0/testing/asserts.ts";
+import { assertEquals} from "https://deno.land/std@0.155.0/testing/asserts.ts";
 
 Deno.test("extra IF", () => {
     let ir1 = translate([

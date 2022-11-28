@@ -1,5 +1,5 @@
 import { translate, Context } from "./CompIR1Translator.ts";
-import { assert, assertEquals, assertExists, assertInstanceOf, assertNotEquals, assertObjectMatch, assertThrows} from "https://deno.land/std@0.155.0/testing/asserts.ts";
+import { assert, assertEquals, assertNotEquals, assertThrows} from "https://deno.land/std@0.155.0/testing/asserts.ts";
 
 
 Deno.test("create nonexistent", () => {

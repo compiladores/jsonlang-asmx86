@@ -7,7 +7,6 @@
 type Label = string;
 export type StatementIR1<Expr> =
   | { cmpq: [Expr, Expr]}
-  | { pushq: Expr }
   | { je: Label }
   | { jne: Label }
   | { jmp: Label }

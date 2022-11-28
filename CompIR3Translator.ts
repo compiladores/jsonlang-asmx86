@@ -1,5 +1,5 @@
-import { CompIR4, StatementIR4 } from "./CompIR4.ts";
-import { CompIR3, StatementIR3 } from "./CompIR3.ts";
+import { CompIR4 } from "./CompIR4.ts";
+import { CompIR3 } from "./CompIR3.ts";
 
 export function translate(code: CompIR3[]): CompIR4[] {
    const ir4 = new Array<CompIR4>();

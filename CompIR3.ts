@@ -3,25 +3,26 @@
  */
 type Label = string;
 export type StatementIR3 =
-  | { movq: [data_and_literal, data]}
-  | { pushq: data_and_literal }
+  | { cmpq: double_operand }
+  | { movq: double_operand }
+  | { pushq: Data_and_literal }
   | { je: Label }
   | { jne: Label }
   | { jmp: Label }
-  | { popq: data }
+  | { popq: Data }
   | "callBegin"
   | { callEnd: Label }
   | "return"
   | {
-    functionIntro: data[];
+    functionIntro: Stack_ubication[];
   }
   | Binops
   | Unops
   | { lbl: Label };
 
 type Binops =
-  | {addq: [data_and_literal, data]}  // | "+"  
-  | {subq: [data_and_literal, data]}  // | "-"
+  | {addq: double_operand}    // "+"
+  | {subq: double_operand}    // "-"  
   // | {imul: [data, Register]}  // | "*"
   // | {idiv: data}  // | "/"
   // | {}  // | "^"
@@ -38,18 +39,26 @@ type Binops =
   | {}  // | "~="
   | {}  // | "and"
   | {}  ;// | "or";
+  
 type Unops = 
-  | "neg"
-  | "!"
-  | "~";
+  | {negq: Data}  // | "neg"
+    // | "!"
+    // | "~";
 
-type data =
+type Data =
   | Stack_ubication
   | Register;
 
-type data_and_literal =
-  | data
-  | {literal: number};
+type Data_and_literal =
+  | Data
+  | Literal
+
+type Literal = {literal: number}
+
+type double_operand = 
+  | [Register, Data]
+  | [Data, Register]
+  | [Literal, Data];
 
 type Stack_ubication = number
 

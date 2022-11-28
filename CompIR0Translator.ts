@@ -74,7 +74,7 @@ function translateGeneral(stmt: Statement<Expression>,
         {jmp: labels[labels.length-1]},      
         {lbl: labels[i]} 
       ]
-
+      
       ir1.push(...content)
     }
 

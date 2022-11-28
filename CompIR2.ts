@@ -4,7 +4,6 @@
 type Label = string;
 export type StatementIR2<Expr> =
   | { cmpq: [Expr, Expr]}
-  | { pushq: Expr }
   | { je: Label }
   | { jne: Label }
   | { jmp: Label }
@@ -39,7 +38,7 @@ type Binops =
 export type Expression =
   | { unop: "-" | "!" | "~"; arg: Expression }
   | { binop: Binops; argl: Expression; argr: Expression }
-  | { stack: Stack_ubication}
+  | Stack_ubication  //Represents ubuication in stack
   | { call: Label; args: Expression[] }
   | { literal: number }
   | { register: Register};

@@ -154,9 +154,9 @@ export function translate(code: CompIR1[]): CompIR2[] {
       }];
     }
     
-    if ("push" in stmt) {
+    if ("cmpq" in stmt) {
       return [{
-        push: translateExpr(stmt.push, context)
+        cmpq: [translateExpr(stmt.cmpq[0], context), translateExpr(stmt.cmpq[1], context)]
       }]
     }
 
