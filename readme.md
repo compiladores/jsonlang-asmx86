@@ -43,25 +43,27 @@ https://gcc.godbolt.org/
 
 Los registros XMM son usados para almacenar y operar numeros de punto flotante.
 
-| Registros        | Proposito           | guardado entre funciones | aclaraciones                            |
-| ---------------- | ------------------- | ------------------------ | --------------------------------------- |
-| `%rax`           | return value        | no                       | Acumulador (extendido por `%rdx`)       |
-| `%rbx`           | general             | si                       | Base                                    |
-| `%rcx`           | 4to argumento       | no                       | Contador                                |
-| `%rdx`           | 3er argumento       | no                       | Data                                    |
-| `%rsp`           | stack pointer       | si                       | Crece hacia abajo                       |
-| `%rbp`           | base pointer        | si                       | (usado para stack frames)               |
-| `%rsi`           | 2do argumento       | no                       | Source index for string operations      |
-| `%rdi`           | 1er argumento       | no                       | Destination index for string operations |
-| `%r8`            | 5to argumento       | no                       |                                         |
-| `%r9`            | 6to argumento       | no                       |                                         |
-| `%r10`           | general             | no                       |                                         |
-| `%r11`           | usado para linkear  | si?                      | NO USAR                                 |
-| `%r12`-`%r15`    | general             | si                       |                                         |
-| `%rip`           | instruction pointer | no?                      | para referenciar etiquetas              |
-| `%xmm0`          | valor retorno       | no                       | (extendido por `%xmm1`)                 |
-| `%xmm0`-`%xmm7`  | 1do-8vo argumentos  | no                       |                                         |
-| `%xmm8`-`%xmm15` | para punto flotante | no                       |                                         |
+Callee-Saved, significa que el registro tiene que ser preservado su estado por la funcion que fue llamada (la funcion "hija")
+
+| Registros        | Proposito           | Callee-Saved | aclaraciones                            |
+| ---------------- | ------------------- | ------------ | --------------------------------------- |
+| `%rax`           | return value        | no           | Acumulador (extendido por `%rdx`)       |
+| `%rbx`           | general             | si           | Base                                    |
+| `%rcx`           | 4to argumento       | no           | Contador                                |
+| `%rdx`           | 3er argumento       | no           | Data                                    |
+| `%rsp`           | stack pointer       | si           | Crece hacia abajo                       |
+| `%rbp`           | base pointer        | si           | (usado para stack frames)               |
+| `%rsi`           | 2do argumento       | no           | Source index for string operations      |
+| `%rdi`           | 1er argumento       | no           | Destination index for string operations |
+| `%r8`            | 5to argumento       | no           |                                         |
+| `%r9`            | 6to argumento       | no           |                                         |
+| `%r10`           | general             | no           |                                         |
+| `%r11`           | usado para linkear  | si?          | NO USAR                                 |
+| `%r12`-`%r15`    | general             | si           |                                         |
+| `%rip`           | instruction pointer | no?          | para referenciar etiquetas              |
+| `%xmm0`          | valor retorno       | no           | (extendido por `%xmm1`)                 |
+| `%xmm0`-`%xmm7`  | 1do-8vo argumentos  | no           |                                         |
+| `%xmm8`-`%xmm15` | para punto flotante | no           |                                         |
 
 > #### Fuentes:
 > - http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html
@@ -93,30 +95,30 @@ Todos los numeros son bytes.
 
 ### Implementacion operadores
 
-| operador  | long             | double          | notas                           |
-| --------- | --------------- | -------------- | ------------------------------- |
-| "+"       | addq            | addsd          |                                 |
-| "-"       | subq            | subsd          |                                 |
-| "*"       | imulq           | mulsd          |                                 |
-| "/" int   | cqto(cqo);idivq | NO             | rdx:rax/reg; rax:cociente       | //Tengo que convertir entero a flotante para div exacta |
-| "/" float | NO              | divsd          | hace division exacta            |
-| "^"       | call pow?       | call pow?      | //NO ES IMPORTANTE PARA MATERIA |
-| "%"       | cqto(cqo);idivq | NO NATIVO      | rdx:rax/reg; rdx:resto          |
-| "&"       | andq            | ¿andpd?        | usa packed floats??             |
-| "\|"      | orq             | ¿orpd?         | usa packed floats??             |
-| ">>"      | sarq            | NO NATIVO      | %r >> imm8/%cl                  |
-| "<<"      | salq            | NO NATIVO      | %r \<\< imm8/%cl                |
-| "<"       | cmpq;set*cc*    | comisd;set*cc* | pagina 1329                     |
-| "<="      | cmpq;set*cc*    | comisd;set*cc* | pagina 1329                     |
-| ">"       | cmpq;set*cc*    | comisd;set*cc* | pagina 1329                     |
-| ">="      | cmpq;set*cc*    | comisd;set*cc* | pagina 1329                     |
-| "=="      | cmpq;set*cc*    | comisd;set*cc* | pagina 1329                     |
-| "~="      | cmpq;set*cc*    | comisd;set*cc* | pagina 1329                     |
-| "and"     | cmpq;je;cmpq;je | comisd;je;comisd;je|
-| "or"      | cmpq;jne;cmpq;je|comids;jne;comisd;je|
-| "neg"     |negq|xorpd¿?| Tengo que usar el numero específico -2147483648
-| "!"       |||if equal 0; return 1; return 0;
-| "~"       |||bitwise not
+| operador  | long             | double               | notas                                           |
+| --------- | ---------------- | -------------------- | ----------------------------------------------- |
+| "+"       | addq             | addsd                |                                                 |
+| "-"       | subq             | subsd                |                                                 |
+| "*"       | imulq            | mulsd                |                                                 |
+| "/" int   | cqto(cqo);idivq  | NO                   | rdx:rax/reg; rax:cociente                       | //Tengo que convertir entero a flotante para div exacta |
+| "/" float | NO               | divsd                | hace division exacta                            |
+| "^"       | call pow?        | call pow?            | //NO ES IMPORTANTE PARA MATERIA                 |
+| "%"       | cqto(cqo);idivq  | NO NATIVO            | rdx:rax/reg; rdx:resto                          |
+| "&"       | andq             | ¿andpd?              | usa packed floats??                             |
+| "\|"      | orq              | ¿orpd?               | usa packed floats??                             |
+| ">>"      | sarq             | NO NATIVO            | %r >> imm8/%cl                                  |
+| "<<"      | salq             | NO NATIVO            | %r \<\< imm8/%cl                                |
+| "<"       | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329                                     |
+| "<="      | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329                                     |
+| ">"       | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329                                     |
+| ">="      | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329                                     |
+| "=="      | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329                                     |
+| "~="      | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329                                     |
+| "and"     | cmpq;je;cmpq;je  | comisd;je;comisd;je  |
+| "or"      | cmpq;jne;cmpq;je | comids;jne;comisd;je |
+| "neg"     | negq             | xorpd¿?              | Tengo que usar el numero específico -2147483648 |
+| "!"       |                  |                      | if equal 0; return 1; return 0;                 |
+| "~"       |                  |                      | bitwise not                                     |
 
 
 ### Uso de PRINTF (y otras funciones cantidad de parametros variable)

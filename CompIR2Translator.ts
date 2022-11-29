@@ -1,5 +1,5 @@
 import { CompIR2, Expression, StatementIR2 } from "./CompIR2.ts";
-import { CompIR3, StatementIR3 } from "./CompIR3.ts";
+import { CompIR3, StatementIR3, Data, double_operand } from "./CompIR3.ts";
 
 function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
   stmt;
@@ -10,10 +10,11 @@ function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
     const ir3: StatementIR3[] = [];
 
     ir3.push(...translateExpr(stmt.cmpq[0]));
-    ir3.push(...translateExpr(stmt.cmpq[1]));
-
-    ir3.push({popq: "rbx"})
     ir3.push({popq: "rax"})
+
+    ir3.push(...translateExpr(stmt.cmpq[1]));
+    ir3.push({popq: "rbx"})
+
 
     ir3.push({cmpq: ["rax", "rbx"]});
 
@@ -33,7 +34,7 @@ function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
   if ("call" in stmt) {
     const instrucciones_arg: StatementIR3[] = [];
 
-    const registers = ["rdi", "rsi", "rdx", "rcx", "r8", "r9"];
+    const registers:Data[] = ["rdi", "rsi", "rdx", "rcx", "r8", "r9"];
 
     while (stmt.args.length > 0 && registers.length > 0) {
       const parameter = stmt.args.shift()
@@ -93,7 +94,8 @@ function translateExpr(expr: Expression): StatementIR3[] {
 
   if ("unop" in expr) {
     const inner_expr = translateExpr(expr.arg);
-    const operation = [{negq: "rax"}];
+    const register: Data = "rax"
+    const operation = [{negq: register}];
 
     if (expr.unop != "-") {
       throw new Error("NO ESTA IMPLEMENTADO EL OPERADOR UNARIO " + expr.unop);
@@ -112,11 +114,13 @@ function translateExpr(expr: Expression): StatementIR3[] {
     const left_expr = translateExpr(expr.argl);
     const right_expr = translateExpr(expr.argr);
     let operation;
+
+    const operators: double_operand = ["rbx", "rax"];
     
     if (expr.binop == "+") {
-      operation = [{addq: ["rbx", "rax"]}];
+      operation = [{addq: operators}];
     } else if (expr.binop == "-") {
-      operation = [{subq: ["rbx", "rax"]}];
+      operation = [{subq: operators}];
     } else {
       throw new Error("NO ESTA IMPLEMENTADO EL OPERADOR BINARIO " + expr.binop);
     }

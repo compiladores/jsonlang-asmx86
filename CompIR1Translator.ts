@@ -1,7 +1,6 @@
 import { CompIR1, Expression as ExpressionIR1 } from "./CompIR1.ts";
 import { CompIR2, Expression as ExpressionIR2 } from "./CompIR2.ts";
 
-
 export class LocalContext {
   private padre: LocalContext|null;
   private hash = new Map<string, number>();
@@ -121,11 +120,15 @@ export class Context {
 
     this.localContext = this.localContext.exit_context();
   }
+
+  getVariableCount(): number {
+    return (this.proximo_id + 1)
+  }
 }
 
 export function translate(code: CompIR1[]): CompIR2[] {
   const context = new Context();
-  return code.flatMap((stmt: CompIR1): CompIR2[] => {
+  const ir2_code = code.flatMap((stmt: CompIR1): CompIR2[] => {
     if (stmt === "enterBlock") {
       context.enterBlock();
       return [];
@@ -187,6 +190,12 @@ export function translate(code: CompIR1[]): CompIR2[] {
 
     return [stmt];
   });
+
+  const bytes_necesitados = 8*context.getVariableCount()
+  const bytes_redondeado_a_multiplo_16 = Math.ceil(bytes_necesitados/16)*16
+
+  ir2_code.splice(0, 0, {enter: {literal: bytes_redondeado_a_multiplo_16}})
+
 }
 
 function translateExpr(

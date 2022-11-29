@@ -3,6 +3,7 @@
  */
 type Label = string;
 export type StatementIR2<Expr> =
+  | { enter: {literal: number}}
   | { cmpq: [Expr, Expr]}
   | { je: Label }
   | { jne: Label }

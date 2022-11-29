@@ -3,8 +3,8 @@
  */
 type Label = string;
 export type StatementIR3 =
+  | { enter: Literal}
   | { cmpq: double_operand }
-  | { movq: double_operand }
   | { pushq: Data_and_literal }
   | { je: Label }
   | { jne: Label }
@@ -27,25 +27,25 @@ type Binops =
   // | {idiv: data}  // | "/"
   // | {}  // | "^"
   // | {}  // | "%"
-  | {}  // | "&"
-  | {}  // | "|"
-  | {}  // | ">>"
-  | {}  // | "<<"
-  | {}  // | "<"
-  | {}  // | "<="
-  | {}  // | ">"
-  | {}  // | ">="
-  | {}  // | "=="
-  | {}  // | "~="
-  | {}  // | "and"
-  | {}  ;// | "or";
+  // | {}  // | "&"
+  // | {}  // | "|"
+  // | {}  // | ">>"
+  // | {}  // | "<<"
+  // | {}  // | "<"
+  // | {}  // | "<="
+  // | {}  // | ">"
+  // | {}  // | ">="
+  // | {}  // | "=="
+  // | {}  // | "~="
+  // | {}  // | "and"
+  // | {}  ;// | "or";
   
 type Unops = 
   | {negq: Data}  // | "neg"
     // | "!"
     // | "~";
 
-type Data =
+export type Data =
   | Stack_ubication
   | Register;
 
@@ -55,7 +55,7 @@ type Data_and_literal =
 
 type Literal = {literal: number}
 
-type double_operand = 
+export type double_operand = 
   | [Register, Data]
   | [Data, Register]
   | [Literal, Data];
