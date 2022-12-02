@@ -58,7 +58,7 @@ Callee-Saved, significa que el registro tiene que ser preservado su estado por l
 | `%r8`            | 5to argumento       | no           |                                         |
 | `%r9`            | 6to argumento       | no           |                                         |
 | `%r10`           | general             | no           |                                         |
-| `%r11`           | usado para linkear  | si?          | NO USAR                                 |
+| `%r11`           | usado para linkear  | no           |                                         |
 | `%r12`-`%r15`    | general             | si           |                                         |
 | `%rip`           | instruction pointer | NO MODIFICAR | para referenciar etiquetas              |
 | `%xmm0`          | valor retorno       | no           | (extendido por `%xmm1`)                 |
@@ -128,3 +128,12 @@ Pero al parecer, en printf@PLT, con indicar que existen registros de punto flota
 > #### Fuente: 
 > https://refspecs.linuxbase.org/elf/x86_64-abi-0.99.pdf
 
+
+
+### ¿Cómo se traduce el if a esta plataforma o VM?
+### ¿Cómo se traduce el while a esta plataforma o VM?
+### ¿Cómo se traduce call a esta plataforma o VM?
+### ¿Cómo se traduce return a esta plataforma o VM?
+### ¿Cómo se traduce DeclarationStatement (declaración de funciones) a esta plataforma o VM?
+### ¿Cómo se traducen las expresiones a esta plataforma o VM?
+#### Listar él o los links que resultaron más útiles para responder esas preguntas.
