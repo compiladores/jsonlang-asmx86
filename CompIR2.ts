@@ -3,7 +3,7 @@
  */
 type Label = string;
 export type StatementIR2<Expr> =
-  | { enter: {literal: number}}
+  | { enter: [{literal: number}, {literal: 0}]}
   | { cmpq: [Expr, Expr]}
   | { je: Label }
   | { jne: Label }
@@ -69,7 +69,7 @@ type Register =
   | "rsp"
   | "rbp"
   | "r10"
-  // | "r11"
+  | "r11"
   | "r12"
   | "r13"
   | "r14"

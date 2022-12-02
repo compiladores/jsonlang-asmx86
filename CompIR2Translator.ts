@@ -10,10 +10,10 @@ function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
     const ir3: StatementIR3[] = [];
 
     ir3.push(...translateExpr(stmt.cmpq[0]));
-    ir3.push({popq: "rax"})
-
     ir3.push(...translateExpr(stmt.cmpq[1]));
+    
     ir3.push({popq: "rbx"})
+    ir3.push({popq: "rax"})
 
 
     ir3.push({cmpq: ["rax", "rbx"]});

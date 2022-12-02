@@ -1,14 +1,28 @@
 /**
  * CompiIR3 without functions
- * take advantage of PC located at -1
+ * y agrega cosas especiales
  */
-type Label = string;
+export type operands =
+  | Literal           // {literal: number}
+  | double_operand    // [Register, Data]
+                      //|[Data, Register]
+                      //|[Literal, Data]
+                      
+  | Stack_ubication   // number
+  | Register          // string
+  | Label             // string
+  | "";               // string
+
+export type Label = string;
+export type Relative_Label = {relative: Label};
 export type StatementIR4 =
-  | { enter: Literal }
+  | { leaq: [Relative_Label, Register]}
+  | { directive: [string, Label] }
+  | { enter: [Literal, {literal: 0}] }
   | { leave: ""}
-  | { cmpq: double_operand}
-  | { movq: double_operand}
-  | { pushq: Data_and_literal }
+  | { cmpq: double_operand }
+  | { movq: double_operand }
+  | { pushq: Data_or_literal }
   | { je: Label }
   | { jne: Label }
   | { jmp: Label }
@@ -26,7 +40,7 @@ export type StatementIR4 =
   // | {idiv: data}  // | "/"
   // | {}  // | "^"
   // | {}  // | "%"
-  // | {}  // | "&"
+  | {andq: double_operand}  // | "&"
   // | {}  // | "|"
   // | {}  // | ">>"
   // | {}  // | "<<"
@@ -42,24 +56,24 @@ export type StatementIR4 =
 type Unops = 
   | {negq: Data}  // | "neg"
     // | "!"
-    // | "~";
+  | {notq: Data}  // | "~";
 
 type Data =
   | Stack_ubication
   | Register;
 
-type Data_and_literal =
+type Data_or_literal =
   | Data
   | Literal
 
-type Literal = {literal: number}
+export type Literal = {literal: number}
 
-type double_operand = 
+export type double_operand = 
   | [Register, Data]
   | [Data, Register]
   | [Literal, Data];
 
-type Stack_ubication = number
+export type Stack_ubication = number
 
 export type argument_register =
   | "rdi"
@@ -76,14 +90,14 @@ type ip_register =
   "rip";
 
 
-type Register = 
+export type Register = 
   | argument_register
   | return_register
   | "rbx"
   | "rsp"
   | "rbp"
   | "r10"
-  // | "r11"
+  | "r11"
   | "r12"
   | "r13"
   | "r14"

@@ -38,9 +38,9 @@ Deno.test("create nonexistent instructions", () => {
         {declare: "a", value: 5},
     ])
 
-    assert(typeof ir2[0] == "object" &&
-            "value" in ir2[0] &&
-             JSON.stringify(ir2[0].value) == '{"literal":5}')
+    assert(typeof ir2[1] == "object" &&
+            "value" in ir2[1] &&
+             JSON.stringify(ir2[1].value) == '{"literal":5}')
 })
 
 
@@ -219,6 +219,7 @@ Deno.test("extra: prueba funcion", () => {
     ])
 
     assertEquals(ir2, [
+        {enter: [{literal: 4*8}, {literal:0}]},
         {jmp: "l0",},
         {lbl: "inc",},
         {functionIntro: [1]},
@@ -233,4 +234,23 @@ Deno.test("extra: prueba funcion", () => {
     ])
     
 
+})
+
+
+Deno.test("extra, el enter inicial reconoce correctamente las variables a reservar", () => {
+    const ir2 = translate([
+        {declare: "x", value: 1},
+        "enterBlock",
+        {declare: "x", value: 2},
+        {declare: "y", value: 3},
+        "enterBlock",
+        {set: "y", value: 4},
+        {set: "z", value: 5},
+        "exitBlock",
+        {set: "z", value: 6},
+        "exitBlock",
+        {set: "z", value: 7}
+    ])
+    
+    assertEquals(ir2[0], {enter: [{literal:((4+1)*8)+8}, {literal: 0}]})    //se redondea a 16 para que quede alineado
 })

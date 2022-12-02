@@ -5,7 +5,6 @@ import { translate as translateC2 } from "./CompIR2Translator.ts";
 import { translate as translateC3 } from "./CompIR3Translator.ts";
 import { translate as translateC4 } from "./CompIR4Translator.ts";
 import { CompIR5 } from "./CompIR5.ts";
-import { execute } from "./CompIr5Vm.ts";
 
 export function compile(code: CompIR0) {
   const c1 = translateC0(code);
@@ -35,26 +34,33 @@ export async function assemble_and_run():Promise<number> {
 
 
   const gcc = Deno.run({cmd: ["gcc", "./programa.s", "-o", "a.out"], stdout: "piped", stderr: "piped"});
-
-  const status_gcc = await gcc.status();  //DEVUELVE PROMESA
-
+  
+  const [status_gcc, _, stderr_gcc] = await Promise.all([
+    gcc.status(),
+    gcc.output(),
+    gcc.stderrOutput()
+  ]);
   gcc.close();
 
+
   if (!status_gcc.success) {
-    const errorString = new TextDecoder().decode(await gcc.stderrOutput());
+    const errorString = new TextDecoder().decode(stderr_gcc);
     throw new Error("Error ensamblado GCC:\n" + errorString);
   }
 
-  const program = Deno.run({cmd: ["./a.out"], stdout:"piped"});
-  const status_program = await program.status();  //DEVUELVE PROMESA 
-  const stdout_program = await program.output();  //DEVUELVE PROMESA 
+  const program = Deno.run({cmd: ["./a.out"], stdout:"piped", stderr: "piped"});
+  const [status_program, stdout_program, stderr_program] = await Promise.all([
+    program.status(),
+    program.output(),
+    program.stderrOutput()
+  ]);
+  program.close();
 
   
 
-  program.close();
 
   if (!status_program.success) {
-    const errorString = new TextDecoder().decode(await program.stderrOutput());
+    const errorString = new TextDecoder().decode(stderr_program);
     throw new Error("Error ejecucion programa:\n" + errorString);
   }
 

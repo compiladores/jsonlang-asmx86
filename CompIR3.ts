@@ -3,9 +3,9 @@
  */
 type Label = string;
 export type StatementIR3 =
-  | { enter: Literal}
+  | { enter: [Literal, {literal: 0}]}
   | { cmpq: double_operand }
-  | { pushq: Data_and_literal }
+  | { pushq: Data_or_literal }
   | { je: Label }
   | { jne: Label }
   | { jmp: Label }
@@ -49,7 +49,7 @@ export type Data =
   | Stack_ubication
   | Register;
 
-type Data_and_literal =
+type Data_or_literal =
   | Data
   | Literal
 
@@ -84,7 +84,7 @@ type Register =
   | "rsp"
   | "rbp"
   | "r10"
-  // | "r11"
+  | "r11"
   | "r12"
   | "r13"
   | "r14"

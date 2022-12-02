@@ -66,9 +66,11 @@ function translateGeneral(stmt: Statement<Expression>,
 
     for (let i = 0; i < if_list.length; i++) {
       const parte_if = if_list[i]
+
+      const operadores: [Expression, Expression] = [0, parte_if.cond];
       
       const content = [
-        {cmpq: [0,parte_if.cond]},
+        {cmpq: operadores},
         {je: labels[i]},
         ...remove_external_block(translateGeneral(parte_if.then, labelFactory, jumps)),
         {jmp: labels[labels.length-1]},      

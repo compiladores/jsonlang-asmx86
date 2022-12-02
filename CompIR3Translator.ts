@@ -4,12 +4,16 @@ import { CompIR3 } from "./CompIR3.ts";
 export function translate(code: CompIR3[]): CompIR4[] {
    const ir4 = new Array<CompIR4>();
 
+   ir4.push({directive: [".global", "main"]})
+
+   ir4.push({lbl: "str_print"});
+   ir4.push({directive: [".string", "%li\n"]});
+
+   ir4.push({lbl: "main"});
+
    // pushq   %rbp
    // movq    %rsp, %rbp
    // subq    $40, %rsp
-
-   // TODO: PLACEHOLDER DE CANT VARIABLES
-   ir4.push({enter: {literal: 8*100}}); //100 es el numero de variables de 64 bits que voy a usar
 
    for (const instruccion of code) {
       if (instruccion == "callBegin" || instruccion == "return" ||
@@ -49,8 +53,15 @@ export function translate(code: CompIR3[]): CompIR4[] {
       }
    }
 
+   ir4.push({ movq: [0, "rsi"]});
+   ir4.push({ leaq: [{relative: "str_print"}, "rdi"]});
+   ir4.push({ call: "printf"});
 
+   
+   ir4.push({ movq: [{literal: 0}, "rax"]});
 
+   ir4.push({leave: ""});
+   ir4.push({ret: ""});
 
    return ir4;
 }

@@ -1,62 +1,81 @@
-import { CompIR4 } from "./CompIR4.ts";
-import { CompiIr5Command } from "./CompIR5.ts";
+import { Literal, double_operand, Stack_ubication, Register, Label, Relative_Label, StatementIR4 } from "./CompIR4.ts";
+import { CompIR5 } from "./CompIR5.ts";
 
-export function translate(commands: CompIR4[]): CompiIr5Command[] {
-   const labels = new Map<string, number>();
-   const ir5 = new Array<CompiIr5Command>(); 
+export function translate(commands: StatementIR4[]): CompIR5 {
+   let ir5 = "";
 
-   let real_index = 0;
+   for (const obj_instruccion of commands) {
+      const inst = Object.entries(obj_instruccion)[0][0];
+      const oper = Object.entries(obj_instruccion)[0][1];
 
-   for (const instruccion of commands) {
-      if (typeof instruccion == "object" && "lbl" in instruccion) {
-         //es lbl
-         labels.set(instruccion.lbl, real_index);
+      const string_operand = parse_operand(oper);
+      
+      if (inst == "directive") {
+         if (oper[0] == ".string") { 
+            ir5 += oper[0] + " \"" + oper[1].replaceAll("\n", "\\n") + "\"\n";
+
+         } else {
+            ir5 += oper[0] + " " + oper[1] + "\n";
+         }
+
+
+      } else if (inst == "lbl") {
+         if (ir5.length != 0) ir5 += "\n"
+         ir5 += string_operand + ":\n"
+
       } else {
-         real_index++;
-      }        
+         ir5 += "\t" + inst;
+
+         if (string_operand.length != 0) {
+            ir5 += "\t" + string_operand;
+         }
+
+         ir5 += "\n";
+      }
+      
    }
 
-   let current_instruction = -1;
+   console.log(ir5)
+   return ir5;
 
-   for (const instruccion of commands.filter(no_es_label)) {
-      current_instruction++;
-      if ((typeof instruccion == "object" && ("bz" in instruccion || "bnz" in instruccion || "jmp" in instruccion || "lbl" in instruccion))) {
-         instruccion
-         let ubicacion_label:(number|undefined) = undefined;
-         if (typeof instruccion != "object") {
-            throw new Error("¿?"); 
-         }
+   
+}
 
-         if ("bz" in instruccion) {
-            ubicacion_label = labels.get(instruccion.bz);
-            if (ubicacion_label == undefined)
-               throw Error("Label unvalida");
-            
-            ir5.push({bz: ubicacion_label-current_instruction})
+function parse_operand(operand:Literal|double_operand|Stack_ubication|Register|Label|""|Relative_Label):string {
+   const registros: Set<string> = new Set(["r10", "r12", "r13", "r14", "r15", "r8",
+   "r9", "rax", "rbp", "rbx", "rcx", "rdi", "rdx", "rip", "rsi", "rsp"]);
 
-         } else if ("bnz" in instruccion) {
-            ubicacion_label = labels.get(instruccion.bnz);
-            if (ubicacion_label == undefined)
-               throw Error("Label unvalida");
+   if (typeof operand == "string") {
+      if (registros.has(operand)) {
+         return "%" + operand;
+      } 
 
-            ir5.push({bnz: ubicacion_label-current_instruction})
+      return operand;
+   }
 
-         } else if ("jmp" in instruccion) {
-            ubicacion_label = labels.get(instruccion.jmp);
-            if (ubicacion_label == undefined)
-               throw Error("Label unvalida");
+   if (typeof operand == "number") {
+      const real_ubication = (operand+1)*-8;
 
-            ir5.push({jmp: ubicacion_label-current_instruction})
-         }
-      } else {
-         ir5.push(instruccion);
+      return String(real_ubication) + "(%rbp)";
+   }
+
+   if (typeof operand == "object") {
+      if (operand instanceof Array) {
+         const operand1 = parse_operand(operand[0]);
+         const operand2 = parse_operand(operand[1]);
+
+         return operand1 + ", " + operand2;
+      }
+
+      if ("literal" in operand) {
+         return "$" + String(operand.literal);
+      }
+
+      if ("relative" in operand) {
+         return operand.relative + "(%rip)";
       }
    }
+
+   throw new Error("NO SE PUDO PARSEAR OPERDOR");
    
-   return ir5;
 }
-
-function no_es_label(inst4: CompIR4):boolean {
-   return !(typeof inst4 == "object" && "lbl" in inst4);
-}
-

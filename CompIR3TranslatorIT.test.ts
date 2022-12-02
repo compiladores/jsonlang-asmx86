@@ -19,7 +19,10 @@ Deno.test("simple function from the header called below", () => {
   // ? QUE PROBAR
 
   assertEquals(ir4, [
-    {enter: {literal: 8*100}},  // TODO: PLACEHOLDER
+    { directive: [".global", "main"] },
+    { lbl: "str_print"},
+    { directive: [".string", "%li\n"]},
+    { lbl: "main"},
     { jmp: "after_fun" },
     { lbl: "the_fun" },
     { pushq: {literal: 10} },
@@ -28,7 +31,13 @@ Deno.test("simple function from the header called below", () => {
     { lbl: "after_fun" },
     { call: "the_fun"},
     { pushq: "rax" },
-    { popq: 0 },    
+    { popq: 0 },
+    { movq: [0, "rsi"]},
+    { leaq: [{relative: "str_print"}, "rdi"]},
+    { call: "printf"},
+    { movq: [{literal: 0}, "rax"]},
+    { leave: "" },
+    { ret: "" }   
   ])
 
   ir4 = translateIR3([
@@ -40,7 +49,10 @@ Deno.test("simple function from the header called below", () => {
   ]);
 
   assertEquals(ir4, [
-    { enter: {literal: 8*100}},
+    { directive: [".global", "main"] },
+    { lbl: "str_print"},
+    { directive: [".string", "%li\n"]},
+    { lbl: "main"},
     { lbl: "the_fun" },
     { movq: ["rdi",1]},
     { movq: ["rsi",2]},
@@ -54,7 +66,13 @@ Deno.test("simple function from the header called below", () => {
     { popq: 10},
     { pushq: {literal:10}},
     { popq: "rax" },
-    { ret: "" }
+    { ret: "" },
+    { movq: [0, "rsi"]},
+    { leaq: [{relative: "str_print"}, "rdi"]},
+    { call: "printf"},
+    { movq: [{literal: 0}, "rax"]},
+    { leave: "" },
+    { ret: "" }   
   ])
 });
 
