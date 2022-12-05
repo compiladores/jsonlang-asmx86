@@ -1,5 +1,6 @@
 import { CompIR2, Expression, StatementIR2 } from "./CompIR2.ts";
 import { CompIR3, StatementIR3, Data, double_operand } from "./CompIR3.ts";
+import { Register } from "./CompIR4.ts";
 
 function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
   stmt;
@@ -116,11 +117,15 @@ function translateExpr(expr: Expression): StatementIR3[] {
     let operation;
 
     const operators: double_operand = ["rbx", "rax"];
+    const op_0_rax: double_operand = [{literal: 0}, "rax"];
+    const a_register: Register = "al"
     
     if (expr.binop == "+") {
       operation = [{addq: operators}];
     } else if (expr.binop == "-") {
       operation = [{subq: operators}];
+    } else if (expr.binop == "<") {
+      operation = [{cmpq: operators}, {movq: op_0_rax},{setl: a_register}]
     } else {
       throw new Error("NO ESTA IMPLEMENTADO EL OPERADOR BINARIO " + expr.binop);
     }

@@ -44,14 +44,14 @@ export type StatementIR4 =
   // | {}  // | "|"
   // | {}  // | ">>"
   // | {}  // | "<<"
-  // | {}  // | "<"
+  | {setl: Data}  // | "<"
   // | {}  // | "<="
   // | {}  // | ">"
   // | {}  // | ">="
   // | {}  // | "=="
   // | {}  // | "~="
   // | {}  // | "and"
-  // | {}  ;// | "or";
+  | {xorq: double_operand}  ;// | "or";
   
 type Unops = 
   | {negq: Data}  // | "neg"
@@ -93,6 +93,7 @@ type ip_register =
 export type Register = 
   | argument_register
   | return_register
+  | "al"
   | "rbx"
   | "rsp"
   | "rbp"

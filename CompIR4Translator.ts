@@ -43,7 +43,8 @@ export function translate(commands: StatementIR4[]): CompIR5 {
 
 function parse_operand(operand:Literal|double_operand|Stack_ubication|Register|Label|""|Relative_Label):string {
    const registros: Set<string> = new Set(["r10", "r12", "r13", "r14", "r15", "r8",
-   "r9", "rax", "rbp", "rbx", "rcx", "rdi", "rdx", "rip", "rsi", "rsp"]);
+   "r9", "rax", "rbp", "rbx", "rcx", "rdi", "rdx", "rip", "rsi", "rsp", "al"]);
+   //TODO: REVISAR AL
 
    if (typeof operand == "string") {
       if (registros.has(operand)) {

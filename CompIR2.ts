@@ -42,36 +42,7 @@ export type Expression =
   | Stack_ubication  //Represents ubuication in stack
   | { call: Label; args: Expression[] }
   | { literal: number }
-  | { register: Register};
 
 export type CompIR2 = StatementIR2<Expression>;
 
 type Stack_ubication = number
-
-type Argument_register =
-  | "rdi"
-  | "rsi"
-  | "rdx"
-  | "rcx"
-  | "r8"
-  | "r9"
-
-type Return_register =
-  "rax";
-
-type Ip_register =
-  "rip";
-
-type Register = 
-  | Argument_register
-  | Return_register
-  | "rbx"
-  | "rsp"
-  | "rbp"
-  | "r10"
-  | "r11"
-  | "r12"
-  | "r13"
-  | "r14"
-  | "r15"
-  | Ip_register;

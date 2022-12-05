@@ -4,6 +4,7 @@
 type Label = string;
 export type StatementIR3 =
   | { enter: [Literal, {literal: 0}]}
+  | { movq: double_operand}
   | { cmpq: double_operand }
   | { pushq: Data_or_literal }
   | { je: Label }
@@ -31,14 +32,14 @@ type Binops =
   // | {}  // | "|"
   // | {}  // | ">>"
   // | {}  // | "<<"
-  // | {}  // | "<"
+  | {setl: Data}  // | "<"
   // | {}  // | "<="
   // | {}  // | ">"
   // | {}  // | ">="
   // | {}  // | "=="
   // | {}  // | "~="
   // | {}  // | "and"
-  // | {}  ;// | "or";
+  | {xorq: double_operand}  ;// | "or";
   
 type Unops = 
   | {negq: Data}  // | "neg"
@@ -80,6 +81,7 @@ type ip_register =
 type Register = 
   | argument_register
   | return_register
+  | "al"
   | "rbx"
   | "rsp"
   | "rbp"
