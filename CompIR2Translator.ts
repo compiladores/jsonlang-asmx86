@@ -84,10 +84,6 @@ function translateExpr(expr: Expression): StatementIR3[] {
     return [{pushq: expr}];
   }
 
-  if ("register" in expr) {
-    return [{pushq: expr.register}]
-  }
-
   if ("call" in expr) {
     return [...translateOne(expr),
             {pushq: "rax"}];
@@ -120,14 +116,21 @@ function translateExpr(expr: Expression): StatementIR3[] {
     const op_0_rax: double_operand = [{literal: 0}, "rax"];
     const a_register: Register = "al"
     
-    if (expr.binop == "+") {
-      operation = [{addq: operators}];
-    } else if (expr.binop == "-") {
-      operation = [{subq: operators}];
-    } else if (expr.binop == "<") {
-      operation = [{cmpq: operators}, {movq: op_0_rax},{setl: a_register}]
-    } else {
-      throw new Error("NO ESTA IMPLEMENTADO EL OPERADOR BINARIO " + expr.binop);
+    switch (expr.binop) {
+      case "+":
+        operation = [{addq: operators}];
+        break;
+
+      case "-":
+        operation = [{subq: operators}];
+        break;
+
+      case "<":
+        operation = [{cmpq: operators}, {movq: op_0_rax},{setl: a_register}]
+        break;
+    
+      default:
+        throw new Error("NO ESTA IMPLEMENTADO EL OPERADOR BINARIO " + expr.binop);
     }
 
     return [

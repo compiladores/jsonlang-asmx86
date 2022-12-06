@@ -11,7 +11,8 @@ export type operands =
   | Stack_ubication   // number
   | Register          // string
   | Label             // string
-  | "";               // string
+  | ""                // string
+  | Relative_Label;   // {relative: Label}
 
 export type Label = string;
 export type Relative_Label = {relative: Label};

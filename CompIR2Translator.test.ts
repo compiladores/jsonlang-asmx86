@@ -200,7 +200,7 @@ Deno.test("extra return", () => {
 
 Deno.test("extra cmpq", () => {
     const ir3 = translateIR2([
-        {cmpq: [{binop: "-", argl: 3, argr: 4}, {register: "rcx"}]} 
+        {cmpq: [{binop: "-", argl: 3, argr: 4}, {literal: 5}]} 
     ])
 
     assertEquals(ir3, [
@@ -211,7 +211,7 @@ Deno.test("extra cmpq", () => {
         {subq: ["rbx", "rax"]},
         {pushq: "rax"},
 
-        {pushq: "rcx"},
+        {pushq: {literal: 5}},
 
         {popq: "rbx"},
         {popq: "rax"},

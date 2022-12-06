@@ -11,9 +11,6 @@ export function translate(code: CompIR3[]): CompIR4[] {
 
    ir4.push({lbl: "main"});
 
-   // pushq   %rbp
-   // movq    %rsp, %rbp
-   // subq    $40, %rsp
 
    for (const instruccion of code) {
       if (instruccion == "callBegin" || instruccion == "return" ||
@@ -42,7 +39,6 @@ export function translate(code: CompIR3[]): CompIR4[] {
                ir4.push({movq: [register, parameter]})
             }
 
-            // TODO: COMPLETAR CON LOS PARAMETROS EN STACK
             for (const ubicacion_destino of parametros_funcion) {
                ir4.push({popq: ubicacion_destino});
              }

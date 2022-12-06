@@ -144,12 +144,13 @@ function translateGeneral(stmt: Statement<Expression>,
     const beginWhile = labelFactory.createLabel();
     const endWhile = labelFactory.createLabel();
 
-    const contenidoWhile = remove_external_block(translateGeneral(stmt.do, labelFactory, {
-      breakLbl: endWhile,
-      continueLbl: beginWhile,
-    }))
+    const jump_lbls = {breakLbl: endWhile,
+                       continueLbl: beginWhile};
+    
+    const bloque_while = translateGeneral(stmt.do, labelFactory, jump_lbls);
+    const contenidoWhile = remove_external_block(bloque_while);
 
-
+    
     return [
       "enterBlock",
       { lbl: beginWhile },

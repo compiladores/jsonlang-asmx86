@@ -122,7 +122,7 @@ export class Context {
   }
 
   getVariableCount(): number {
-    return (this.proximo_id + 1)
+    return this.proximo_id
   }
 }
 
@@ -194,7 +194,12 @@ export function translate(code: CompIR1[]): CompIR2[] {
   const bytes_necesitados = 8*context.getVariableCount()
   const bytes_redondeado_a_multiplo_16 = Math.ceil(bytes_necesitados/16)*16
 
-  ir2_code.splice(0, 0, {enter: [{literal: bytes_redondeado_a_multiplo_16}, {literal: 0}]})
+  const reserva_stack:CompIR2 = {
+    enter: [{literal: bytes_redondeado_a_multiplo_16},
+            {literal: 0}]
+  }
+
+  ir2_code.splice(0, 0, reserva_stack)
 
   return ir2_code;
 }
