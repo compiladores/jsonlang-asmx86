@@ -2,7 +2,8 @@
 # a partir del valor del registro eflags 
 
 while(1):
-    numero = int(input("0x"))
+    numero = int(input("0x"), 16)
+    
     
     print("carry (CF):\t", int((numero&(1*2**0))/2**0))
     print("equal (ZF):\t", int((numero&(1*2**6))/2**6))

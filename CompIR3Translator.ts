@@ -49,6 +49,7 @@ export function translate(code: CompIR3[]): CompIR4[] {
       }
    }
 
+   ir4.push({ movq: [{literal: 0}, "rax"]});
    ir4.push({ movq: [0, "rsi"]});
    ir4.push({ leaq: [{relative: "str_print"}, "rdi"]});
    ir4.push({ call: "printf"});
