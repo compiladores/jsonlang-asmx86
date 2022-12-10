@@ -16,7 +16,7 @@ export type StatementIR2<Expr> =
   }
   | { lbl: Label };
 
-type Binops =
+export type Binops =
   | "+"
   | "-"
   | "*"

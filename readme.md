@@ -84,6 +84,38 @@ Todos los numeros son bytes.
 > - https://sourceware.org/binutils/docs-2.39/as.html#i386_002dMemory
 
 
+### __Labels Locales *(labels numéricos)*__
+
+A numeric label consists of a single digit in the range zero (0) through nine (9) followed by a colon (:). Numeric labels are used only for local reference and are not included in the object file's symbol table. Numeric labels have limited scope and can be redefined repeatedly.
+
+When a numeric label is used as a reference (as an instruction operand, for example), the suffixes b (“backward”) or f (“forward”) should be added to the numeric label. For numeric label N, the reference Nb refers to the nearest label N defined before the reference, and the reference Nf refers to the nearest label N defined after the reference. The following example illustrates the use of numeric labels:
+
+```as
+1:          / define numeric label "1"
+one:        / define symbolic label "one"
+
+/ ... assembler code ...
+
+jmp   1f    / jump to first numeric label "1" defined
+            / after this instruction
+            / (this reference is equivalent to label "two")
+
+jmp   1b    / jump to last numeric label "1" defined
+            / before this instruction
+            / (this reference is equivalent to label "one")
+
+1:          / redefine label "1"
+two:        / define symbolic label "two"
+
+jmp   1b    / jump to last numeric label "1" defined
+            / before this instruction
+            / (this reference is equivalent to label "two")
+```
+
+> #### Fuente:
+> https://docs.oracle.com/cd/E19120-01/open.solaris/817-5477/esqaq/index.html
+
+
 ### __Implementacion operadores__
 
 | operador  | long             | double               | notas                           |
@@ -93,7 +125,7 @@ Todos los numeros son bytes.
 | "*"       | imulq            | mulsd                |                                 |
 | "/" int   | cqto(cqo);idivq  | NO                   | rdx:rax/reg; rax:cociente       | //Tengo que convertir entero a flotante para div exacta |
 | "/" float | NO               | divsd                | hace division exacta            |
-| "^"       | call pow?        | call pow?            | //NO ES IMPORTANTE PARA MATERIA |
+| "^"       | call pow?        | call pow?            | implementado solo int positivo |
 | "%"       | cqto(cqo);idivq  | NO NATIVO            | rdx:rax/reg; rdx:resto          |
 | "&"       | andq             | ¿andpd?              | usa packed floats??             |
 | "\|"      | orq              | ¿orpd?               | usa packed floats??             |
@@ -110,6 +142,8 @@ Todos los numeros son bytes.
 | "neg"     | negq             | xorpd¿?              | ver en godbolt.net              |
 | "!"       |                  |                      | if equal 0; return 1; return 0; |
 | "~"       |                  |                      | bitwise not                     |
+
+
 
 > #### Fuente:
 > [Intel® 64 and IA-32 Architectures Developer's Manual](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html)

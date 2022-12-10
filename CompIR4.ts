@@ -37,22 +37,25 @@ export type StatementIR4 =
   type Binops =
   | {addq: double_operand}    // "+"
   | {subq: double_operand}    // "-"  
-  // | {imul: [data, Register]}  // | "*"
-  // | {idiv: data}  // | "/"
-  // | {}  // | "^"
+  | {imulq: [Data, Register]}  // | "*"
+  | {idivq: Data}  // | "/"
+  // | call pow()  // | "^"
   // | {}  // | "%"
   | {andq: double_operand}  // | "&"
-  // | {}  // | "|"
-  // | {}  // | ">>"
-  // | {}  // | "<<"
-  | {setl: Data}  // | "<"
-  // | {}  // | "<="
-  // | {}  // | ">"
-  // | {}  // | ">="
-  // | {}  // | "=="
-  // | {}  // | "~="
+  | {orq: double_operand}  // | "|"
+  | {sarq: ["cl"|Literal, Data]}  // | ">>"
+  | {salq: ["cl"|Literal, Data]}  // | "<<"
+  | {setl: register8bit|Stack_ubication}  // | "<"
+  | {setle: register8bit|Stack_ubication}  // | "<="
+  | {setg: register8bit|Stack_ubication}  // | ">"
+  | {setge: register8bit|Stack_ubication}  // | ">="
+  | {sete: register8bit|Stack_ubication}  // | "=="
+  | {setne: register8bit|Stack_ubication}  // | "~="
   // | {}  // | "and"
-  | {xorq: double_operand}  ;// | "or";
+  // | {}  ;// | "or";
+  | {xorq: double_operand}
+  | {dec: Data}
+  | {cqto: ""}  //Extiende el signo de RAX a RDX
   
 type Unops = 
   | {negq: Data}  // | "neg"
@@ -94,6 +97,7 @@ type ip_register =
 export type Register = 
   | argument_register
   | return_register
+  | register8bit
   | "al"
   | "rbx"
   | "rsp"
@@ -105,5 +109,12 @@ export type Register =
   | "r14"
   | "r15"
   | ip_register;
+
+type register8bit =
+  | "al"
+  | "bl"
+  | "cl"
+  | "dl"
+
 
 export type CompIR4 = StatementIR4;

@@ -1,6 +1,120 @@
-import { CompIR2, Expression, StatementIR2 } from "./CompIR2.ts";
-import { CompIR3, StatementIR3, Data, double_operand } from "./CompIR3.ts";
+import { CompIR2, Expression, StatementIR2, Binops } from "./CompIR2.ts";
+import { CompIR3, StatementIR3, Data } from "./CompIR3.ts";
 import { Register } from "./CompIR4.ts";
+
+const operators_const: [Register, Register] = ["rbx", "rax"]
+const set_rax_0:CompIR3 = {movq: [{literal: 0}, "rax"]};
+
+
+const binops_map:Record<Binops, Array<CompIR3>> = {
+  "+": [{addq: operators_const}],
+  "-": [{subq: operators_const}],
+  "*": [{imulq: operators_const}],
+  "/": [
+    {cqto: ""},
+    {idivq: "rbx"}
+  ],
+
+  "^": [
+    {movq: [{literal: 1}, "rcx"]},
+    {lbl: "0"},
+    {cmpq: [{literal: 0}, "rbx"]},
+    {je: "9f"},
+    {imulq: ["rax", "rcx"]},
+    {dec: "rbx"},
+    {jmp: "0b"},
+
+    {lbl: "9"},
+    {movq: ["rcx", "rax"]}
+  ],
+
+  "%": [
+    {cqto: ""},
+    {idivq: "rbx"},
+    {movq: ["rdx", "rax"]}
+  ],
+  "&": [{andq: operators_const}],
+  "|": [{orq: operators_const}],
+  ">>": [
+    {movq: ["rbx", "rcx"]},
+    {sarq: ["cl", "rax"]},
+  ],
+  "<<": [
+    {movq: ["rbx", "rcx"]},
+    {salq: ["cl", "rax"]},
+  ],
+  "<": [
+    {cmpq: operators_const},
+    set_rax_0,
+    {setl: "al"},
+  ],
+  "<=": [
+    {cmpq: operators_const},
+    set_rax_0,
+    {setle: "al"},
+  ],
+  ">": [
+    {cmpq: operators_const},
+    set_rax_0,
+    {setg: "al"},
+  ],
+  ">=": [
+    {cmpq: operators_const},
+    set_rax_0,
+    {setge: "al"},
+  ],
+  "==": [
+    {cmpq: operators_const},
+    set_rax_0,
+    {sete: "al"},
+  ],
+  "~=": [
+    {cmpq: operators_const},
+    set_rax_0,
+    {setne: "al"},
+  ],
+
+  "and": [
+    {cmpq: [{literal: 0} , "rax"]}, // Compara primer elemento
+    {je: "0f"},                     // Si falso, setea 0
+
+    {cmpq: [{literal: 0} , "rbx"]}, //Compara segundo elemento
+    {je: "0f"},                     // si falso, setea 0
+
+    {movq: ["rbx", "rax"]}, // es verdadero, seteo como resultado el segundo valor.
+    {jmp: "9f"},  
+
+    {lbl: "0"},
+    set_rax_0,
+
+    {lbl: "9"}
+  ],
+
+  "or": [
+    {cmpq: [{literal: 0} , "rax"]}, // Compara primer elemento
+    {jne: "9f"},                    // si es verdadero, va al final, se devuelve rax
+
+    {cmpq: [{literal: 0} , "rbx"]}, // compara segundo elemento
+    {je: "0f"},                     // si es falso, setea rax 0.
+    {movq: ["rbx", "rax"]},         // si es verdadero, se devuelve rbx
+    {jmp: "9f"},                    // va al final
+
+    {lbl: "0"},
+    set_rax_0,
+
+    {lbl: "9"}
+  ]
+}
+
+const unops_map:Record<"-"|"!"|"~", Array<CompIR3>> = {
+  "-": [{negq: "rax"}],
+  "!": [
+    {cmpq: [{literal: 0} , "rax"]},
+    {movq: [{literal: 0}, "rax"]},
+    {sete: "al"}
+  ],
+  "~": [{notq: "rax"}]
+}
 
 function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
   stmt;
@@ -91,12 +205,9 @@ function translateExpr(expr: Expression): StatementIR3[] {
 
   if ("unop" in expr) {
     const inner_expr = translateExpr(expr.arg);
-    const register: Data = "rax"
-    const operation = [{negq: register}];
 
-    if (expr.unop != "-") {
-      throw new Error("NO ESTA IMPLEMENTADO EL OPERADOR UNARIO " + expr.unop);
-    }
+
+    const operation = unops_map[expr.unop];
 
     return [
       ...inner_expr,
@@ -110,28 +221,10 @@ function translateExpr(expr: Expression): StatementIR3[] {
     //TODO: IMPLEMENTAR TODOS LOS UNOPS. TAL VEZ CON UN DICCIONARIO?
     const left_expr = translateExpr(expr.argl);
     const right_expr = translateExpr(expr.argr);
-    let operation;
 
-    const operators: double_operand = ["rbx", "rax"];
-    const op_0_rax: double_operand = [{literal: 0}, "rax"];
-    const a_register: Register = "al"
     
-    switch (expr.binop) {
-      case "+":
-        operation = [{addq: operators}];
-        break;
-
-      case "-":
-        operation = [{subq: operators}];
-        break;
-
-      case "<":
-        operation = [{cmpq: operators}, {movq: op_0_rax},{setl: a_register}]
-        break;
-    
-      default:
-        throw new Error("NO ESTA IMPLEMENTADO EL OPERADOR BINARIO " + expr.binop);
-    }
+    const operation = binops_map[expr.binop];
+  
 
     return [
       ...left_expr,

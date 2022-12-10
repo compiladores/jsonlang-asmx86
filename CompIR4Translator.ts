@@ -44,7 +44,7 @@ export function translate(commands: StatementIR4[]): CompIR5 {
 function parse_operand(operand:operands):string {
    const registros: Set<string> = new Set(["r10", "r12",
    "r13", "r14", "r15", "r8", "r9", "rax", "rbp", "rbx",
-   "rcx", "rdi", "rdx", "rip", "rsi", "rsp", "al"]);
+   "rcx", "rdi", "rdx", "rip", "rsi", "rsp", "al", "bl", "cl"]);
 
    if (typeof operand == "string") {
       if (registros.has(operand)) 
