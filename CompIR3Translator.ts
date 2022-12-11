@@ -7,7 +7,15 @@ export function translate(code: CompIR3[]): CompIR4[] {
    ir4.push({directive: [".global", "main"]})
 
    ir4.push({lbl: "str_print"});
-   ir4.push({directive: [".string", "%li\n"]});
+   ir4.push({directive: [".string", "%lf\n"]});
+   
+   ir4.push({lbl: "dividend"});
+   ir4.push({directive: [".double", "4294967296"]});
+
+   ir4.push({lbl: "mask_int"});
+   ir4.push({directive: [".long", "0"]});
+   ir4.push({directive: [".long", "0xFFFFFFFF"]});
+   
 
    ir4.push({lbl: "main"});
 
@@ -48,11 +56,14 @@ export function translate(code: CompIR3[]): CompIR4[] {
          ir4.push(instruccion);
       }
    }
+   
+   ir4.push({cvtsi2sdq: [0, "xmm0"]});
+   ir4.push({divsd: [{relative: "dividend"}, "xmm0"]});
 
-   ir4.push({ movq: [{literal: 0}, "rax"]});
-   ir4.push({ movq: [0, "rsi"]});
-   ir4.push({ leaq: [{relative: "str_print"}, "rdi"]});
-   ir4.push({ call: "printf"});
+   ir4.push({leaq: [{relative: "str_print"}, "rdi"]});
+   ir4.push({movq: [{literal: 1}, "rax"]});
+
+   ir4.push({call: "printf"});
 
    
    ir4.push({ movq: [{literal: 0}, "rax"]});

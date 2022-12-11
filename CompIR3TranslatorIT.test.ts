@@ -21,7 +21,12 @@ Deno.test("simple function from the header called below", () => {
   assertEquals(ir4, [
     { directive: [".global", "main"] },
     { lbl: "str_print"},
-    { directive: [".string", "%li\n"]},
+    { directive: [".string", "%lf\n"]},
+    { lbl: "dividend"},
+    { directive: [".double", "4294967296"]},
+    { lbl: "mask_int"},
+    { directive: [".long", "0"]},
+    { directive: [".long", "0xFFFFFFFF"]},
     { lbl: "main"},
     { jmp: "after_fun" },
     { lbl: "the_fun" },
@@ -32,9 +37,11 @@ Deno.test("simple function from the header called below", () => {
     { call: "the_fun"},
     { pushq: "rax" },
     { popq: 0 },
-    { movq: [0, "rsi"]},
+    { cvtsi2sdq: [0, "xmm0"] },
+    { divsd: [{relative: "dividend"}, "xmm0"]},
     { leaq: [{relative: "str_print"}, "rdi"]},
-    { call: "printf"},
+    { movq: [{literal: 1}, "rax"]},
+    { call: "printf" },
     { movq: [{literal: 0}, "rax"]},
     { leave: "" },
     { ret: "" }   
@@ -51,7 +58,12 @@ Deno.test("simple function from the header called below", () => {
   assertEquals(ir4, [
     { directive: [".global", "main"] },
     { lbl: "str_print"},
-    { directive: [".string", "%li\n"]},
+    { directive: [".string", "%lf\n"]},
+    { lbl: "dividend"},
+    { directive: [".double", "4294967296"]},
+    { lbl: "mask_int"},
+    { directive: [".long", "0"]},
+    { directive: [".long", "0xFFFFFFFF"]},
     { lbl: "main"},
     { lbl: "the_fun" },
     { movq: ["rdi",1]},
@@ -67,12 +79,14 @@ Deno.test("simple function from the header called below", () => {
     { pushq: {literal:10}},
     { popq: "rax" },
     { ret: "" },
-    { movq: [0, "rsi"]},
+    { cvtsi2sdq: [0, "xmm0"] },
+    { divsd: [{relative: "dividend"}, "xmm0"]},
     { leaq: [{relative: "str_print"}, "rdi"]},
-    { call: "printf"},
+    { movq: [{literal: 1}, "rax"]},
+    { call: "printf" },
     { movq: [{literal: 0}, "rax"]},
     { leave: "" },
-    { ret: "" }   
+    { ret: "" }  
   ])
 });
 
