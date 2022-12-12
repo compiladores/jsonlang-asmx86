@@ -6,7 +6,7 @@
 
 Para empezar, que es **Assembly**?
 
-![texto](./slides/2.png)
+![Descripcion Assembly](./slides/2.png)
 **Assembly** es un lenguaje en el que se escriben instrucciones directamente para el CPU, pero en vez de con unos y ceros como machine code, se usan nombres para cada instrucción y registro, se usan etiquetas, macros, y otros elementos, para que el codigo se pueda leer y entender de manera más facil
 
 Cada tipo de Arquitectura va a tener un lenguaje assembly un poco distinto, porque cada tipo de CPU tiene distintas instrucciones, y tambien puede ser un poco distinta la sintaxis que se usa.
@@ -22,53 +22,96 @@ Cada tipo de Arquitectura va a tener un lenguaje assembly un poco distinto, porq
 Entonces, vemos la arquitectura que voy a usar, que es parte de x86
 
 
-![texto](./slides/4.png)
+![Explicacion sobre familia de cpus x86](./slides/4.png)
 **x86** es una familia de sets de instrucciones que desarrolló Intel a fines de los años 70. El primer procesador que usó el set de instrucciones fue el 8086 lanzado en 1978. El año siguiente se lanzó el 8088, que usa la misma arquitectura, y fue el procesador que uso la IBM PC original, y por lo tanto, en los clones PC compatibles, que logró convertir a x86 en la arquitectura más popular para computadoras de escritorio.
 
+> #### Fuente:
+> https://en.wikipedia.org/wiki/X86
+> https://en.wikipedia.org/wiki/Intel_8088
+> https://www.cs.umd.edu/users/meesh/cmsc411/website/projects/blunck/x86.html
+
+
 <br>
 
-![texto](./slides/5.png)
+![Registros en el 8086](./slides/5.png)
 La arquitectura a lo largo de los años evolucionó, agregandose nuevos registros y nuevas instrucciones a medida que avanzaba la tecnología.
 
-Inicialmente tenía unos 8 registros de proposito general, cada uno de 16 bits, y disponía de 117 instrucciones distintas.
+Inicialmente tenía unos 8 registros de proposito general, cada uno de 16 bits, y disponía de 79 instrucciones distintas, sin contar cada una de las variantes de los saltos condicionales.
 
-Suponiendo que tambien tuvieras el co-procesador de punto flotante, tenías 8 registros más para almacenar los valores y resultados de las nuevas 68 instrucciones.
+Suponiendo que tambien tuvieras el co-procesador de punto flotante, tenías 8 registros más para almacenar los valores y resultados de las nuevas 69 instrucciones.
+
+> #### Fuente:
+> https://www.cs.virginia.edu/~evans/cs216/guides/x86.html
+> http://bitsavers.org/components/intel/8086/9800722-03_The_8086_Family_Users_Manual_Oct79.pdf
+> http://bitsavers.trailing-edge.com/pdf/intel/ISIS_II/121703-003_ASM86_Language_Reference_Manual_Mar85.pdf
 
 <br>
 
-![texto](./slides/6.png)
+![Registros en el pentium mmx](./slides/6.png)
 Para mediado de los 90, el set de instrucciones dio el paso a procesadores de 32 bits. Se extendieron los registros de uso general, y además se introdujo una de las primeras extensiones al set de instrucciones, la extension MMX,
-Es un conjunto de nuevos registros e instrucciones con la filosofía SIMD, que significa single instruction, multiple data.
+Es un conjunto de 8 nuevos registros y 25 nuevas instrucciones con la filosofía SIMD, que significa single instruction, multiple data.
 Osea que cada uno de los nuevos 8 registros pueden almacenar un entero de 64 bits, o dos enteros de 32, 4 de 16, o 8 de 8 bits, y una sola instruccion podría realizar la operacion de cada uno de los valores de un registro, con cada uno de los valores de otro registro mmx.
-A estas alturas, hay alrededor de 210 instrucciones.
+
+Desde el 8086, tambien se agregaron alrededor de 15 nuevas instrucciones generales.
+
+//168 instrucciones generales
+
+
+A estas alturas, hay pocas menos que 200 instrucciones.
+
+> #### Fuentes:
+> https://en.wikichip.org/wiki/x86/extensions
+> https://en.wikipedia.org/wiki/MMX_(instruction_set)
+> https://www.paulnettle.com/pub/GeneralReferences/Pentium/pent_ug3.pdf
+> https://en.wikipedia.org/wiki/X86_instruction_listings
+> http://bitsavers.informatik.uni-stuttgart.de/components/intel/MMX/243007-002_Intel_Architecture_MMX_Technology_Programmers_Reference_Manual_Mar1996.pdf
 
 
 <br>
 
-![texto](./slides/7.png)
+![Registros con la introduccion de la extension SSE](./slides/7.png)
 Al principio de los 2000 Con la introduccion de la extension SSE (y sus proximas generaciones), por fin se agregaban instrucciones modernas para operar con numeros de punto flotantes de hasta doble presicion.
 La extension tambien tenia instrucciones similares a las MMX, pero para los nuevos 8 registros de 128 bits.
-Ya para la version 4 de SSE, se habían agregado unas 280 instrucciones nuevas, llevando el total a pocas menos que 500 instrucciones.
+Ya para la version 4 de SSE, se habían agregado unas 280 instrucciones nuevas (no encontré fuente primaria para esta informacion, habría que contar las instrucciones del manual de intel), llevando el total a unas 480 instrucciones totales.
+
+> #### Fuentes:
+> https://en.wikipedia.org/wiki/Streaming_SIMD_Extensions
+> https://en.wikipedia.org/wiki/SSE2
+> https://en.wikipedia.org/wiki/SSE3
+> https://en.wikipedia.org/wiki/SSSE3
+> https://en.wikipedia.org/wiki/SSE4
 
 
 <br>
 
-![texto](./slides/8.png)
+![Registros en Athlon 64](./slides/8.png)
 A finales de 2003, amd lanzó el primer procesador de 64 bits.
 En esta iteracion, los 8 registros de proposito general son extendidos a 64 bits, y se le agregan 16 registros extras, tambien de proposito general.
 Tambien se extiende la cantidad de registros XMM, los agregados por la extension SSE, al doble, teniendo ahora 16 registros para operaciones SIMD, y de punto flotante.
 
+> #### Fuentes:
+> https://en.wikipedia.org/wiki/X86-64
+
+
 <br>
 
-![texto](./slides/9.png)
+![Registros en procesadores actuales](./slides/9.png)
 Finalmente llegamos a las ultimas evoluciones de la arquitectura x86_64, que es cuando se agrega la extension AVX. La extension agrega 16 nuevos registros XMM, y extiendo todos estos registros a 256, y 512 bits, y extiende las instrucciones de SSE a estos nuevos registros de mayor tamaño
 El ultimo manual de intel, se documentan 671 instrucciones distintas, algunas hasta teniendo distintas variantes.
+
+> #### Fuentes:
+> https://en.wikipedia.org/wiki/Advanced_Vector_Extensions
+> https://www.cs.princeton.edu/courses/archive/spr18/cos217/reading/x86-64-2.pdf
 
 <br>
 
 Como se ve, la arquitectura termina siendo un espaguetti por todas las cosas que se le fueron agregando encima de otras. Pero aunque eso sea una desventaja, tambien es su mayor ventaja, porque la arquitectura todavía es completamente compatible con el modo de funcionamiento del procesador original 8086.
 
 <br>
+
+
+> #### Fuentes:
+> Imagen: https://en.wikipedia.org/wiki/File:Table_of_x86_Registers_svg.svg
 
 ---
 
@@ -77,7 +120,7 @@ Como se ve, la arquitectura termina siendo un espaguetti por todas las cosas que
 
 
 Lo primero a saber del lenguaje Assembly x86,
-![texto](./slides/11.png)
+![Comparacion caracteristicas sintaxis AT&T e Intel](./slides/11.png)
 es que hay 2 sintaxis distintas para escribir el programa.
 La sintaxis AT&T que proviene de los inicios de C, y de Unix en los años 70, antes de que se usara procesadores intel para sistemax Unix.
 A medida que paso el tiempo, los procesadores x86 de intel empezaron a usarse tambien para sistemas Unix, o Unix-like, y por lo tanto las herramientas de desarrollo fueron creadas para ser similares a la sintaxis que se usaba antes de los procesadores Intel.
@@ -85,10 +128,15 @@ Por otro lado, intel tenía su propia sintaxis que es la documentada en los manu
 
 La mayor diferencia entre la sintaxis de ambos, es el orden de los operandos, estando en uno al reves del otro, y tambien en como se indica el tamaño de bytes a usar en las operaciones.
 
+> #### Fuentes:
+> https://sdasgup3.github.io/Intel_Vs_Att_format/
+> https://en.wikipedia.org/wiki/X86_assembly_language#Syntax
+> https://softwareengineering.stackexchange.com/questions/263481/why-does-gcc-use-att-syntax-by-default
+
 
 <br>
 
-![texto](./slides/12.png)
+![Ejemplo de codigo Assemblt x86_64](./slides/12.png)
 una vez tenemos elegida la sintaxis, en mí caso at&t, tenemos que saber que el codigo assembly no esta formado solo por instrucciones al procesador, sino que tiene:
 
 Las etiquetas, que son indicaciones de ubicaciones de memoria dentro del programa, osea la indicacion del string hello, y la ubicacion de la primera instrucción del main en la líneas 3 y 6.
@@ -99,7 +147,7 @@ y por ultimo, si, las instrucciones que representan las operaciones que va a rea
 
 <br>
 
-![texto](./slides/13.png)
+![Fibbionacci en C y en ASM x86_64](./slides/13.png)
 Como ejemplo, decidí usar este código C y su compilación a Assembly 
 En la imagen de la izquierda se muestra el codigo C que lo que hace es mostrar los numeros de la secuencia Fibionacci desde el 0 hasta 255, y esto se repite indefinidamente.
 
@@ -123,7 +171,7 @@ En el caso de que no se haga, se hace el salto al inicio del `while`.
 ## **Mi implementacion del back-end**
 
 
-![texto](./slides/15.png)
+![Estructura general de mi tp](./slides/15.png)
 Yo decidí hacer mi back end basandome en el lab 6.
 
 De manera iterativa, empecé desde la traduccion de nivel 0, hasta la traduccion de nivel 4, y fui viendo que instrucciones ya no existian, cuales faltaban, y que modificaciones había que hacer a la traduccion para que funcionara con Assembly x86_64.
@@ -140,7 +188,7 @@ En cambio, la traduccion 4 lo que hace, es convertir la lista de objetos para ca
 
 <br>
 
-![texto](./slides/16.png)
+![Ejemplo codigo, traduccion 0, caso while](./slides/16.png)
 Voy a comentar los cambios que me parecieron más relevantes, respecto a como funcionaba el back end en el lab 6.
 
 En la traducción 0, lo unico relevante es la introducción de la primera nueva instrucción, es el de la instruccion `cmpq`, que es una instrucción de comparacion.  lo que hace, es restar el segundo operador menos el primero, pero sin almacenar el resultado, con el objetivo de setear los flags.
@@ -150,7 +198,7 @@ Tambien podría, en vez de hacer una comparacion con el 0, hacer inteligentement
 
 <br>
 
-![texto](./slides/17.png)
+![Ejemplo codigo, traduccion 1, caso reserva stack](./slides/17.png)
 Para la traducción 1, la que elimina las variables, tuve que agregar las instrucciónes que reservan el espacio en el stack para el programa.
 Para crear el stack frame, y hacer la reserva de espacio, se puede usar la instruccion `enter`, que recibe en el primer parametro la cantidad de bytes a reservar.
 
@@ -162,7 +210,7 @@ Y antes de agregar la instruccion al inicio del programa, en la linea 195, aline
 
 <br>
 
-![texto](./slides/18.png)
+![Ejemplo codigo, traduccion 2, caso llamada a funcion](./slides/18.png)
 En las llamadas a funcion, decidí seguir el estandar que usan los sistemas Unix-like.
 En este estandar, los primeros 6 parametros se pasan a la funcion a traves de registros: `rdi`, `rsi`, `rdx`, `rcx`, `r8` y `r9`.
 Y el resto de parametros (si hubiera) se pasan a travez del stack, de manera invertida.
@@ -170,7 +218,7 @@ Osea, de manera que la funcion llamada, pueda popear los parametros en el orden 
 
 <br>
 
-![texto](./slides/19.png)
+![Ejemplo codigo, traduccion 2, caso traducción de binops](./slides/19.png)
 Para traducir las operaciones binarias, decidí hacer una implementacion bastante simple, aunque bastante lenta a la hora de ejecucion.
 En esta implementacion, lo que hago, es primero traducir recursivamente la expresion izquierda, y despues traducir la expresion derecha, tambien de manera recursiva.
 
@@ -182,7 +230,7 @@ Para la entrega final, voy a implementar el resto de las operaciones, y si tengo
 
 <br>
 
-![texto](./slides/20.png)
+![Ejemplo codigo, traduccion 3, caso agregados necesarios](./slides/20.png)
 En la traduccion 3, se traducen las declaraciones de fuciones, pero no resulta demasiado interesante, porque es el mismo proceso que para llamar a la funcion, solo que obteniendo los parametros.
 
 Lo que resulta nuevo, es el inicio del codigo, y el final del codigo que se agrega en este paso.
@@ -198,7 +246,7 @@ La última instrucción, es la instrucción `ret`, que es la que vuelve de la ll
 
 <br>
 
-![texto](./slides/21.png)
+![Ejemplo codigo, traduccion 4, caso parseo de operandos](./slides/21.png)
 Finalmente, en la traduccion 4, en la que se convierte el array de objetos en un string.
 
 Para parsear las instrucciones, verifico si es una directiva al ensamblador, un label, o una instruccion, y formateo correctamente segun corresponda.
@@ -215,7 +263,7 @@ Los literales, son el numero que hay, con un simbolo de pesos adelante, y las et
 
 <br>
 
-![texto](./slides/22.png)
+![Ejemplo, codigo para realizar la traducción completa](./slides/22.png)
 Y finalmente, con todas las traducciones hechas, lo unico que tengo que hacer es, llamar a la funcion run, con las instrucciones en JsonLang
 se compila el codigo, obteniendo el string de assembly.
 Ese string lo escribo en un archivo `.s`,
