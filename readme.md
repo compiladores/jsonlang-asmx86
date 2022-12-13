@@ -13,6 +13,9 @@ Se debe tener instalado GCC para poder realizar el ensamblado y linkeo del ASM g
 
 Para ejecutar la suit de tests, se tiene que ejecutar `./deno test`
 
+Tambien se dispone para debuggeo del archivo assembly generado (el ultimo test ejecutado deja el archivo `programa.s`), 2 archivos python para interpretar los valores de los registros.
+Ambos archivos se ejecutan con `python3 nombre_archivo`, pero no son requeridos para la ejecución de los tests.
+
 ## Arquitectura general del proyecto.
 
 Se utilizo una estructura similar al del Lab6, donde el programa se traduce 5 veces. En cada traducción se resuelve un problema.
@@ -269,7 +272,7 @@ Lo que hace la instruccion es pushear el actual _frame pointer_, y luego asignar
 ### __¿Cómo se traducen las expresiones a esta plataforma o VM?__
 
 #### __- Variables Globales__
-En x86_64, las variables globales, se almacenan en etiquetas dentro del codigo assembler del programa, y se utilizan usandolas como direccion relativa a la instruccion actual. Suponiendo una variable global `a`, que tiene de contenido el numero 10 (en especifico, mi imeplementacion almacena todos los numeros como enteros con signo de 64 bits), el codigo assembler lo representaía como:
+En x86_64, las variables globales, se almacenan en etiquetas dentro del codigo assembler del programa, y se utilizan usandolas como direccion relativa a la instruccion actual. Suponiendo una variable global `a`, que tiene de contenido el numero 10, el codigo assembler lo representaía como:
 ```as
 var_a: .quad 10
 ```
@@ -278,19 +281,42 @@ Y si quisiera utilizar este valor, o modificarlo, accedo a el con la expresion `
 #### __- Variables Locales__
 Para utilizar las variables locales, primero tengo que reservarlas moviendo el _stack pointer_. Esto se puede hacer con la instrucción `enter`, como explicado en la [declaracion de funciones](#cómo-se-traduce-declarationstatement-declaración-de-funciones-a-esta-plataforma-o-vm).
 Para utilizar esta variable, simplemente tengo que tener la posicion en la que se encuentra respecto al _frame pointer_ (`%rbp`). Hay que tener en cuenta que como el stack crece para direcciones de memoria menores, la primera variable local no se encuentra en la direccion del _frame pointer_, sino que se encuentra n bytes para abajo (segun el tamaño del valor).
-En el caso de mi implementacion, como todos los numero ocupan 64bits (8bytes), la primera variable se encuentra en `-8(%rbp)`, la segunda en `-16(%rbp)` y así sucesivamente.
+En el caso de usar numeros que ocupen 64bits (8bytes), la primera variable se encuentra en `-8(%rbp)`, la segunda en `-16(%rbp)` y así sucesivamente.
 
-### __- Numeros literales__
+> #### Aclaracion de mi implementacion.
+> Jsonlang utiliza un **scope dinámico**. Esto quiere decir, que cada vez que se accede a una variable, se accede a esa variable en el ultimo scope creado. Esco agrega mucha complejidad, porque desde cualquier scope, puedo acceder a variables de un scope muy inferior. x86_64 no tiene ninguna instruccion o estructura de datos que permita implementar este tipo de **Scoping** fácilmente, sino que se tendría que hacer una implementacion que busque el contenido de cada variable en runtime.
+> Por lo que decidí hacer que todas las variables se creen en un scope *"local de nivel 0"*, y que no se creen ni eliminen stack frames. Esto tiene 2 claras deventajas:
+> - La primera, es que el programa reserva desde el inicio el totalidad de memoria para las variables existentes, por lo que termina ocupando espacio innecesario en memoria.
+> - La segunda, es que si una funcion se ejecuta recursivamente, y define nuevas variables, estas nuevas variables nunca van a existir, sino que sera la misma ubicacion de memoria que la primera definicion de la variable.
+
+#### __- Numeros literales__
 La arquitectura permite el uso de numeros literales en las operaciones. Sin embargo, las instrucciones de operaciones de _x86_64_ almacenan el resultado en el primer valor de la operacion (que es el segundo valor en la instruccion _x86_64_). Por lo que unicamente se puede utilizar un valor literal por operacion. En caso de que existan 2 numeros literales en una operacion (o uno solo en una operacion unitaria) el numero debe ser precalculado e insertar el resultado en el codigo assembler, o insertar los valores literales en registros, y luego hacer la operacion.
 
-### __- Registros__
+> #### Aclaracion de mi implementacion.
+> Para mi implementacion, decidí que todos los numeros sean numeros de punto fijo, con 32 bits para la parte entera, y 32 bits para la parte decimal. Por esto, cada numero literal, antes de *almacenarlo* dentro de la instrucción, lo multiplico por 2**32, para llevarlo a la reperesentacion de punto fijo con 32 decimales.
+
+#### __- Registros__
 Como se muestra en el [cuadro de registros](#--registros) esta arquitectura posee varios registros que pueden usarse para acelerar el acceso a variables, ya que es una memoria mucho más rapida que la RAM.
 Pero para hacer un uso apropiado de los registros, se debería hacer un analisis mas a fondo del AST para poder elegir cuales variables asignar a registros, en base a su uso, por lo que esta implementacion utiliza registros unicamente para hacer calculos necesarios.
 
-### __- Operaciones__
+#### __- Operaciones__
 Para realizar las operaciones, se usan las instrucciones especificadas en el [cuadro de implementacion de operadores](#implementacion-operadores).
 En el caso de operaciones anidadas, se podría hacer uso de los distintos registros, pero llevaría un analisis más complejo. Por lo que para mi implementacion, decidí hacer uso del Stack, para almacenar los valores calculados. Recursivamente voy traduciendo el argumento izquierdo y luego derecho.
 En el caso base de encontrarme con una variable, registro, o literal, este valor lo pusheo al stack.
 Luego, en los casos no bases, popeo un valor al registro B, luego al registro A; y el resultado (que esta en el registro A) lo pusheo de nuevo al stack. Y así sucesivamente hasta la operacion principal.
 
+
+### __¿Cómo implementarías arrays de largo fijo en este target?__
+
+
+### __¿Cómo implementarías una interfaz con la plataforma (uso de syscalls, librerías standard, etc) en este target?__
+
+
+### __¿Cuán facil fue aprender esta plataforma o VM? ¿Por qué?__
+
+
+### __¿Recomendarías esta plataforma o VM a futuros estudiantes de la materia? ¿Por qué?__
+
+
+### __Liste ventajas y desventajas de trabajar en esta plataforma o VM.__
 

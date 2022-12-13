@@ -1,5 +1,6 @@
-#Usado para, en el momento de debuggear, ver el estado de los flags
+# Usado para, en el momento de debuggear, ver el estado de los flags
 # a partir del valor del registro eflags 
+# Se debe escribir el numero del flag en formato hexadecimal, sin el 0x.
 
 while(1):
     numero = int(input("0x"), 16)

@@ -55,6 +55,27 @@ define LAUNCH_JSON
             "runtimeArgs": ["test", "--inspect-brk=127.0.0.1:9229","-A"],
             "attachSimplePort": 9229,
             "type": "node"
+        },
+        {
+            "name": "gcc - build and debug",
+            "type":"cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/a.out",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable Preetty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "asm build active file",
+            "miDebuggerPath": "/usr/bin/gdb"
         }
     ]
 }
@@ -86,14 +107,49 @@ export EXTENSIONS_JSON
 .vscode/extensions.json: .vscode
 	echo "$$EXTENSIONS_JSON" > .vscode/extensions.json
 
+define TASKS_JSON
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "asm build programa.s file",
+            "command": "gcc",
+            "args": [
+                "./programa.s",
+                "-lm",
+                "-g",
+                "-o",
+                "a.out"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "compiler /usr/bin/gcc"
+        }
+    ]
+}
+endef
+export TASKS_JSON
+
+.vscode/tasks.json: .vscode
+	echo "$$TASKS_JSON" > .vscode/tasks.json
+
 .vscode:
 	mkdir .vscode
 
-vscode: .vscode/extensions.json .vscode/settings.json .vscode/launch.json
+vscode: .vscode/extensions.json .vscode/settings.json .vscode/launch.json .vscode/tasks.json
 
 deno:
 	curl -fsSL https://deno.land/install.sh | DENO_INSTALL=./d sh -s "v1.26.0"
 	mv ./d/bin/deno ./deno
 	rm -rf ./d
 
-setup: deno .vscode .vscode/settings.json .vscode/launch.json .vscode/extensions.json
+setup: deno .vscode .vscode/settings.json .vscode/launch.json .vscode/extensions.json .vscode/tasks.json
