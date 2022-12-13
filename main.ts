@@ -33,7 +33,7 @@ export async function assemble_and_run():Promise<number> {
   //USAR FORK; O PROCESO HIJO
 
 
-  const gcc = Deno.run({cmd: ["gcc", "./programa.s", "-o", "a.out"], stdout: "piped", stderr: "piped"});
+  const gcc = Deno.run({cmd: ["gcc", "./programa.s", "-lm", "-o", "a.out"], stdout: "piped", stderr: "piped"});
   
   const [status_gcc, _, stderr_gcc] = await Promise.all([
     gcc.status(),
@@ -66,6 +66,6 @@ export async function assemble_and_run():Promise<number> {
 
   const decodificado = new TextDecoder().decode(stdout_program);
 
-  return parseInt(decodificado);
+  return parseFloat(decodificado);
 }
 

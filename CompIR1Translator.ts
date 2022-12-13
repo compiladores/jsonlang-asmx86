@@ -235,7 +235,7 @@ function translateExpr(
   }
 
   if (typeof expr == "number") {
-    return {literal: expr};
+    return {literal: Math.round(expr*2**32)};
   }
 
   throw new Error("No debería llegar nunca");

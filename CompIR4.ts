@@ -37,8 +37,11 @@ export type StatementIR4 =
   type Binops =
   | {addq: double_operand}    // "+"
   | {subq: double_operand}    // "-"  
-  | {imulq: [Data, Register]}  // | "*"
+  | {imulq: [Data, Register]|Data}  // | "*"
+  | {shrd: ["cl"|Literal, Register, Data]}
+
   | {idivq: Data}  // | "/"
+  | {shld: ["cl"|Literal, Register, Data]}
   // | call pow()  // | "^"
   // | {}  // | "%"
   | {andq: double_operand}  // | "&"
@@ -54,8 +57,14 @@ export type StatementIR4 =
   // | {}  // | "and"
   // | {}  ;// | "or";
   | {xorq: double_operand}
+  | {pxor: double_operand}
   | {dec: Data}
   | {cqto: ""}  //Extiende el signo de RAX a RDX
+  | {cvtsi2sdq: double_operand}   //Convertir numero a double
+  | {cvttsd2siq: double_operand}  //Convertir double a entero
+  | {divsd: double_operand}       //dividir float
+  | {mulsd: double_operand}   //Multiplicar float
+  
   
 type Unops = 
   | {negq: Data}  // | "neg"
@@ -64,7 +73,8 @@ type Unops =
 
 type Data =
   | Stack_ubication
-  | Register;
+  | Register
+  | Relative_Label;
 
 type Data_or_literal =
   | Data
@@ -108,7 +118,10 @@ export type Register =
   | "r13"
   | "r14"
   | "r15"
-  | ip_register;
+  | ip_register
+  | "xmm0"
+  | "xmm1"
+  | "xmm2"
 
 type register8bit =
   | "al"

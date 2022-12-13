@@ -1,4 +1,4 @@
-import { Literal, double_operand, Stack_ubication, Register, Label, Relative_Label, StatementIR4, operands } from "./CompIR4.ts";
+import { StatementIR4, operands } from "./CompIR4.ts";
 import { CompIR5 } from "./CompIR5.ts";
 
 export function translate(commands: StatementIR4[]): CompIR5 {
@@ -44,7 +44,8 @@ export function translate(commands: StatementIR4[]): CompIR5 {
 function parse_operand(operand:operands):string {
    const registros: Set<string> = new Set(["r10", "r12",
    "r13", "r14", "r15", "r8", "r9", "rax", "rbp", "rbx",
-   "rcx", "rdi", "rdx", "rip", "rsi", "rsp", "al", "bl", "cl"]);
+   "rcx", "rdi", "rdx", "rip", "rsi", "rsp", "al", "bl",
+   "cl", "xmm0", "xmm1", "xmm2"]);
 
    if (typeof operand == "string") {
       if (registros.has(operand)) 
@@ -60,10 +61,13 @@ function parse_operand(operand:operands):string {
 
    if (typeof operand == "object") {
       if (operand instanceof Array) {
-         const operand1 = parse_operand(operand[0]);
-         const operand2 = parse_operand(operand[1]);
+         let string= "";
 
-         return operand1 + ", " + operand2;
+         for (const individual_operand of operand) {
+            string += parse_operand(individual_operand) + ", ";
+         } 
+
+         return string.slice(0, -2);
       }
 
       if ("literal" in operand) 

@@ -4,6 +4,7 @@ import {
 } from "https://deno.land/std@0.155.0/testing/asserts.ts";
 
 Deno.test("+", async () => {
+
   let c = await run([{
     "set": "out",
     "value": {binop: "+", argl: 10, argr: 20}
@@ -27,6 +28,24 @@ Deno.test("+", async () => {
     "value": {binop: "+", argl: 0, argr: 0}
   }]);
   assertEquals(c, 0);
+
+  c = await run([{
+    "set": "out",
+    "value": {binop: "+", argl: 0.1, argr: 0.2}
+  }]);
+  assertEquals(c, 0.3);   //Oficialmente le gané a Javascript
+
+  // c = await run([{
+  //   "set": "out",
+  //   "value": {binop: "+", argl: 10.5, argr: 5481.1}
+  // }]);
+  // assertEquals(c, 5491.6);
+
+  // c = await run([{
+  //   "set": "out",
+  //   "value": {binop: "+", argl: 0.5, argr: -1.50}
+  // }]);
+  // assertEquals(c, -1);
 });
 
 
@@ -95,6 +114,11 @@ Deno.test("-", async () => {
     }]);
     assertEquals(c, 2);
 
+    c = await run([{
+      "set": "out",
+      "value": {binop: "/", argl: 1, argr: 2}
+    }]);
+    assertEquals(c, 0.5);
     
     c = await run([{
       "set": "out",
@@ -266,9 +290,9 @@ Deno.test("-", async () => {
     
     c = await run([{
       "set": "out",
-      "value": {binop: ">>", argl: -15678, argr: 5}
+      "value": {binop: ">>", argl: 15678, argr: 5}
     }]);
-    assertEquals(c, -490);
+    assertEquals(c, 489);
   });
 
 

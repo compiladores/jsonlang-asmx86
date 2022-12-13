@@ -9,23 +9,32 @@ const set_rax_0:CompIR3 = {movq: [{literal: 0}, "rax"]};
 const binops_map:Record<Binops, Array<CompIR3>> = {
   "+": [{addq: operators_const}],
   "-": [{subq: operators_const}],
-  "*": [{imulq: operators_const}],
+  "*": [
+    {imulq: "rbx"},
+    {shrd: [{literal: 32}, "rdx", "rax"]},
+    {sarq: [{literal: 32}, "rdx"]}
+  ],
   "/": [
     {cqto: ""},
-    {idivq: "rbx"}
+    {shld: [{literal: 32}, "rax", "rdx"]},
+    {salq: [{literal: 32}, "rax"]},
+    {idivq: "rbx"},
   ],
 
   "^": [
-    {movq: [{literal: 1}, "rcx"]},
-    {lbl: "0"},
-    {cmpq: [{literal: 0}, "rbx"]},
-    {je: "9f"},
-    {imulq: ["rax", "rcx"]},
-    {dec: "rbx"},
-    {jmp: "0b"},
+    {pxor: ["xmm0", "xmm0"]},
+    {pxor: ["xmm1", "xmm1"]},
+    
+    {cvtsi2sdq: ["rax", "xmm0"]},
+    {divsd: [{relative: "dividend"}, "xmm0"]},
 
-    {lbl: "9"},
-    {movq: ["rcx", "rax"]}
+    {cvtsi2sdq: ["rbx", "xmm1"]},
+    {divsd: [{relative: "dividend"}, "xmm1"]},
+
+    {callEnd: "pow@PLT"},
+
+    {mulsd: [{relative: "dividend"}, "xmm0"]},
+    {cvttsd2siq: ["xmm0", "rax"]}
   ],
 
   "%": [
@@ -37,41 +46,53 @@ const binops_map:Record<Binops, Array<CompIR3>> = {
   "|": [{orq: operators_const}],
   ">>": [
     {movq: ["rbx", "rcx"]},
+    {sarq: [{literal: 32}, "rcx"]},
     {sarq: ["cl", "rax"]},
+    {movq: [{relative: "mask_int"}, "rbx"]},
+    {andq: ["rbx", "rax"]},
   ],
   "<<": [
     {movq: ["rbx", "rcx"]},
+    {sarq: [{literal: 32}, "rcx"]},
+    {movq: [{relative: "mask_int"}, "rbx"]},
+    {andq: ["rbx", "rax"]},
     {salq: ["cl", "rax"]},
   ],
   "<": [
     {cmpq: operators_const},
     set_rax_0,
     {setl: "al"},
+    {salq: [{literal: 32}, "rax"]}
   ],
   "<=": [
     {cmpq: operators_const},
     set_rax_0,
     {setle: "al"},
+    {salq: [{literal: 32}, "rax"]}
   ],
   ">": [
     {cmpq: operators_const},
     set_rax_0,
     {setg: "al"},
+    {salq: [{literal: 32}, "rax"]}
   ],
   ">=": [
     {cmpq: operators_const},
     set_rax_0,
     {setge: "al"},
+    {salq: [{literal: 32}, "rax"]}
   ],
   "==": [
     {cmpq: operators_const},
     set_rax_0,
     {sete: "al"},
+    {salq: [{literal: 32}, "rax"]}
   ],
   "~=": [
     {cmpq: operators_const},
     set_rax_0,
     {setne: "al"},
+    {salq: [{literal: 32}, "rax"]}
   ],
 
   "and": [
@@ -111,9 +132,14 @@ const unops_map:Record<"-"|"!"|"~", Array<CompIR3>> = {
   "!": [
     {cmpq: [{literal: 0} , "rax"]},
     {movq: [{literal: 0}, "rax"]},
-    {sete: "al"}
+    {sete: "al"},
+    {salq: [{literal: 32}, "rax"]}
   ],
-  "~": [{notq: "rax"}]
+  "~": [
+    {negq: "rax"},
+    {movq: [{literal: 0x100000000}, "rbx"]},
+    {subq: ["rbx", "rax"]}
+  ]
 }
 
 function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
@@ -194,8 +220,20 @@ export function translate(code: CompIR2[]): CompIR3[] {
 // caso base: pushea en stack el valor
 // no caso base, popea en B, popea en A, realiza op B,A; luego pushea A
 function translateExpr(expr: Expression): StatementIR3[] {
-  if (typeof expr == "number" || "literal" in expr) {
+  if (typeof expr == "number") {
     return [{pushq: expr}];
+  }
+
+  if ("literal" in expr) {
+
+    if (expr.literal > 2147483647 || expr.literal < -2147483647) {
+      return [
+        {movq: [{literal: expr.literal}, "rax"]},
+        {pushq: "rax"}
+      ]
+    }
+
+    return [{pushq: {literal: expr.literal}}]
   }
 
   if ("call" in expr) {

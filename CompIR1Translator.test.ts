@@ -40,7 +40,7 @@ Deno.test("create nonexistent instructions", () => {
 
     assert(typeof ir2[1] == "object" &&
             "value" in ir2[1] &&
-             JSON.stringify(ir2[1].value) == '{"literal":5}')
+             JSON.stringify(ir2[1].value) == '{"literal":21474836480}')
 })
 
 
@@ -223,12 +223,12 @@ Deno.test("extra: prueba funcion", () => {
         {jmp: "l0",},
         {lbl: "inc",},
         {functionIntro: [1]},
-        {return: {binop: "+", argl: 1, argr: {literal: 1}}},
+        {return: {binop: "+", argl: 1, argr: {literal: 1*2**32}}},
         {lbl: "l0",},
-        {set: 2, value: {literal: 5}},
+        {set: 2, value: {literal: 5*2**32}},
         {set: 0, value: {
             call: "inc",
-            args: [{literal:5}],
+            args: [{literal:5*2**32}],
           },
         },
     ])
