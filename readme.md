@@ -16,7 +16,9 @@ Para ejecutar la suit de tests, se tiene que ejecutar `./deno test`
 Tambien se dispone para debuggeo del archivo assembly generado (el ultimo test ejecutado deja el archivo `programa.s`), 2 archivos python para interpretar los valores de los registros.
 Ambos archivos se ejecutan con `python3 nombre_archivo`, pero no son requeridos para la ejecución de los tests.
 
+
 ## Arquitectura general del proyecto.
+
 
 Se utilizo una estructura similar al del Lab6, donde el programa se traduce 5 veces. En cada traducción se resuelve un problema.
 
@@ -152,8 +154,7 @@ jmp   1b    // jump to last numeric label "1" defined
 > [Intel® 64 and IA-32 Architectures Developer's Manual](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html)
 
 ### __Uso de PRINTF (y otras funciones cantidad de parametros variable)__
-Para envias parametros float, o double, se tienen que usar los registros `%xmm0 - %xmm7`. Pero antes de llamar la funcion, se debe indicar la cantidad de registros xmm usado, en el registro `%al` (osea `%rax`)
-Pero al parecer, en printf@PLT, con indicar que existen registros de punto flotante (con un numero distinto de 0) alcanza.
+Para envias parametros float, o double, se tienen que usar los registros `%xmm0 - %xmm7`. Pero antes de llamar la funcion, se debe indicar la cantidad de registros xmm usado, en el registro `%al` (osea `%rax`), pero al parecer, en printf, con indicar que existen registros de punto flotante (con un numero distinto de 0) alcanza.
 
 > #### Fuente: 
 > [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf)
@@ -244,8 +245,8 @@ En el caso de llamar a una funcion externa, el stack pointer debe estar alineado
 ### __¿Cómo se traduce return a esta plataforma o VM?__
 El return de una funcion, se hace de igual manera independientemente del sistema operativo.
 Lo primero que se tiene que hacer, es restaurar los registros callee-saved que almacenamos en el stack, para que la *"funcion padre"* los tenga de vuelta.
-Una vez hicimos esto, tenemos que almacenar en el registro "%rax" el valor de retorno de la funcion, y luego, podemos utilizar la instrucción `ret`. Esta instrucción ya se ocupa de 
-volver a la ultima ubicacion donde se realizó un `call`.
+
+Una vez hicimos esto, tenemos que almacenar en el registro "%rax" el valor de retorno de la funcion, y luego, podemos utilizar la instrucción `ret`. Esta instrucción ya se ocupa de volver a la ultima ubicacion donde se realizó un `call`.
 
 > #### Fuente: 
 > http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html
@@ -254,12 +255,14 @@ volver a la ultima ubicacion donde se realizó un `call`.
 
 ### __¿Cómo se traduce DeclarationStatement (declaración de funciones) a esta plataforma o VM?__
 La declaracion de funcion es simplemente una etiqueta que indica el inicio de la funicion. Luego, tambien, si la funcion contiene parametros, estos parametros deben ser movidos a sus ubicaciones de memoria dentro de la funcion. Esto lo hago con la instruccion `movq`, en el caso de los parametros pasados por registro; y con un `popq` para el resto de parametros.
+
 Luego se puede realizare la tarea que necesita realizar la funcion, y por ultimo, poner el return como se indicó anteriormente.
 Hay que tener en cuenta que si se va a reemplazar el valor de un registro callee-saved, hay que guardar su contenido y restaurarlo antes de llegar al final de la función.
 
 Tambien, al la hora de crear una función, si se quisiera aislar el stack respecto a la *"funcion padre"*, y poder hacer crecer y achicar dinamicamente el stack, se pueden usar las instrucciónes `enter` y `leave`.
 
 A `enter` se le pasa la cantidad de bytes a reservar (y tambien se le puede pasar el nivel de profundidad de funcion, para acceder al as variables de niveles inferiores; pero resulta en codigo mucho más complejo, y no es usado en la mayoría de lenguajes).
+
 Lo que hace la instruccion es pushear el actual _frame pointer_, y luego asignarle el actual _stack pointer_. Si se le pasa una cantidad de bytes a reservar, se le resta ese valor al _stack pointer_, para que las proximas instrucciones de `push` y `pop` operen luego de las variables locales. Esta instruccion se usa al inicio de la funcion, aunque los compiladores suelen usar la version con `push`, `mov`, y `sub` ya que pueden realizarse en menos ciclos del cpu, aunque ocupen más espacio en el programa. 
 
 `leave` no recibe ningun parametro, y simplemente mueve el _stack pointer_ al _frame pointer_ y popea el anterior _frame pointer_ y lo restaura en el registro. Esta instruccion es usada antes de la instruccion `ret` para volver a la _funcion padre_
@@ -280,7 +283,9 @@ Y si quisiera utilizar este valor, o modificarlo, accedo a el con la expresion `
 
 #### __- Variables Locales__
 Para utilizar las variables locales, primero tengo que reservarlas moviendo el _stack pointer_. Esto se puede hacer con la instrucción `enter`, como explicado en la [declaracion de funciones](#cómo-se-traduce-declarationstatement-declaración-de-funciones-a-esta-plataforma-o-vm).
+
 Para utilizar esta variable, simplemente tengo que tener la posicion en la que se encuentra respecto al _frame pointer_ (`%rbp`). Hay que tener en cuenta que como el stack crece para direcciones de memoria menores, la primera variable local no se encuentra en la direccion del _frame pointer_, sino que se encuentra n bytes para abajo (segun el tamaño del valor).
+
 En el caso de usar numeros que ocupen 64bits (8bytes), la primera variable se encuentra en `-8(%rbp)`, la segunda en `-16(%rbp)` y así sucesivamente.
 
 > #### Aclaracion de mi implementacion.
@@ -297,39 +302,53 @@ La arquitectura permite el uso de numeros literales en las operaciones. Sin emba
 
 #### __- Registros__
 Como se muestra en el [cuadro de registros](#--registros) esta arquitectura posee varios registros que pueden usarse para acelerar el acceso a variables, ya que es una memoria mucho más rapida que la RAM.
+
 Pero para hacer un uso apropiado de los registros, se debería hacer un analisis mas a fondo del AST para poder elegir cuales variables asignar a registros, en base a su uso, por lo que esta implementacion utiliza registros unicamente para hacer calculos necesarios.
 
 #### __- Operaciones__
 Para realizar las operaciones, se usan las instrucciones especificadas en el [cuadro de implementacion de operadores](#implementacion-operadores).
+
 En el caso de operaciones anidadas, se podría hacer uso de los distintos registros, pero llevaría un analisis más complejo. Por lo que para mi implementacion, decidí hacer uso del Stack, para almacenar los valores calculados. Recursivamente voy traduciendo el argumento izquierdo y luego derecho.
+
 En el caso base de encontrarme con una variable, registro, o literal, este valor lo pusheo al stack.
 Luego, en los casos no bases, popeo un valor al registro B, luego al registro A; y el resultado (que esta en el registro A) lo pusheo de nuevo al stack. Y así sucesivamente hasta la operacion principal.
 
 
 ### __¿Cómo implementarías arrays de largo fijo en este target?__
-Los arrays de tamaño fijo, se podrían implementar como las variables locales, pero en vez de ocupar solo 8 bytes, ocupan n*8 bytes, segun la cantidad de elementos que almacenan. Esto agregaría la complejidad de que habría que saber cuantos espacios hay que avanzar hasta la siguiente variable, pero sería algo que se podría calcular en tiempo de compilacion.
-El array, tambien se encontraría invertido en el stack. Siendo el primer valor el mas cercano al stack pointer, y el ultimo valor, el más lejano.
+Los arrays de tamaño fijo, se podrían implementar como las variables locales, pero en vez de ocupar solo 8 bytes, ocupan n*8 bytes, segun la cantidad de elementos que almacenan. Esto agregaría la complejidad de que habría que saber cuantos espacios hay que avanzar hasta la siguiente variable, pero sería algo que se podría calcular en tiempo de compilacion.El array, tambien se encontraría invertido en el stack. Siendo el primer valor el mas cercano al stack pointer, y el ultimo valor, el más lejano. 
+
 Para acceder a cada uno de los indices del array, se puede usar uno de los [adressing modes](#adressing-modes), en vez de acceder con `d(%rbp)`, como haría con una variable normal, movería el indice al que quiero acceder a un registro, por ejemplo `%rax`, y accedería a la dirección de la manera: `d(%rbp, %rax, 8)`.
 Siendo `d` la ubicacion del primer elemento del array dentro del stack, `%rbp`, la ubicacion de la base del stack, `%rax`, el indice al que quiero acceder al stack, y `8` el tamaño de cada elemento del stack, en este caso 8 por trabajar con numeros de 8 bytes.
+
 Si el indice del elemento al acceder lo se en tiempo de compilacion, podría ahorrar ese metodo de addressing, y calcular directamente el displacement requerido para llegar al valor deseado.
 
 ### __¿Cómo implementarías una interfaz con la plataforma (uso de syscalls, librerías standard, etc) en este target?__
 En Assembly x86_64, se puede hacer uso de la librería estandar para llamar a las funciones del sistema. En el caso de mi implementacion, hago uso de la librería estandar para llamar a printf e imprimir el contenido de la variable `out`. Para hacer esta llamada solo tengo que seguir el procedimiento estandar para hacer llamadas a funciones, como lo describe el ABI.
 
-Tambien, podría hacer la llamada directamente al sistema operativo a travez de una **syscall**
-Para esto, solo se pueden cargar 6 parametros en los registros: `%rdi`, `%rsi`, `%rdx`, `%r10`, `%r8` y `%r9`, y
-en el registro `%rax` se indica el numero de syscall que queremos llamar.
-
-
+Tambien, podría hacer la llamada directamente al sistema operativo a travez de una **syscall**. Para esto, solo se pueden cargar 6 parametros en los registros: `%rdi`, `%rsi`, `%rdx`, `%r10`, `%r8` y `%r9`, y en el registro `%rax` se indica el numero de syscall que queremos llamar, y finalmente para pasar el control al Sistema operativo, se usa la intruccion `syscall`. Al terminar la ejecucion de la llamada, se devuelve el resultado en `%rax`.
+Hay que tener en cuenta que en el sistema operativo destruye el contenido de `%rcx` y `%r11`, por lo que habría que guardarlos si se quiere conservarlos.
 
 > #### Fuente: 
 > [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf)
+> http://articles.manugarg.com/systemcallinlinux2_6.html
+> https://stackoverflow.com/questions/15168822/intel-x86-vs-x64-system-call
+> https://blog.packagecloud.io/the-definitive-guide-to-linux-system-calls/
 
 ### __¿Cuán facil fue aprender esta plataforma o VM? ¿Por qué?__
 
+Creo que esta plataforma fue relativamente fácil de aprender por una unica razon, que es la posibilidad de compilar codigo C hasta codigo Assembly, y poder verificar como se traducen las estructuras y expresiones.
+
+El resto de complicaciones que me surgieron, que no pudieran ser resueltas viendo la compilacion de codigo C, si resulto bastante más complicado, porque la documentacion oficial es extremadamente excesiva y bastante tecnica, y las fuentes de informacion de la comunidad (como podría ser stackoverflow) no siempre coincidian entre si las respuestas. 
+
+Tambien hay que agregar que es una plataforma muy vieja, por lo que hay mucha informacion desactualizada, de las versiones anteriores de la arquitectura, que pueden llevar al a confunsion.
+
 
 ### __¿Recomendarías esta plataforma o VM a futuros estudiantes de la materia? ¿Por qué?__
+Definitivamente recomendaría esta plataforma a estudiantes futuros, porque resulta muy interesante aprender como funciona internamente el procesador. El caso en el que no lo recomendaría, es si se disposiera de un equipo ARM, o Risc V, ya que x86 ya es una arquitectura que esta empezando a mostrar la edad, por lo que imagino que sería más educativo ver assembly y arquitecturas más modernas.
 
 
 ### __Liste ventajas y desventajas de trabajar en esta plataforma o VM.__
+La principal desventaja de la plataforma, es lo antigua que es. Al ser creada a mediados de los 70's y al ser una plataforma totalmente retrocompatible, hay demasiadas instrucciones y documentacion, que ni siquiera son usadas actualmente. Esto hace que el desarrollo para esta plataforma termine siendo innecesariamente complejo, cuando realmente las instrucciones y documentacion relevantes a dia de hoy, no es tanta.
+Otra desventaja es la practicamente nula portabilidad. Un programa x86_64 puede ejecutarse unicamente en un cpu x86_64, e incluso si usa instrucciones de alguna de las extensiones, solo puede funcionar en los CPUs que posean estas extensiones. Incluso teniendo un procesador con la correcta arquitectura, y extensiones, cambiar de sistema operativo puede causar que, por los lineaimentos para llamadas a funciones, y las llamadas al sistema operativo (syscalls), el programa deje de ser compatible.
 
+//TODO
