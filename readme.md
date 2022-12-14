@@ -24,7 +24,7 @@ Se utilizo una estructura similar al del Lab6, donde el programa se traduce 5 ve
 
 1. CompIR0Translator: Elimina ("desdobla"/"despliega"/"unfolds") estructuras de control
 2. CompIR1Translator: Elimina variables
-3. CompIR2Translator: Elimina expresiones, introduce registros ___(WIP)___
+3. CompIR2Translator: Elimina expresiones, introduce registros
 4. CompIR3Translator: Elimina funciones, agrega declaracion main, printeo de variable `out`
 5. CompIR4Translator: Convierte array de objetos a string a escribir en programa.s
 
@@ -62,63 +62,64 @@ Callee-Saved, significa que el registro tiene que ser preservado su estado por l
 | `%xmm8`-`%xmm15` | para punto flotante | no           |                                         |
 
 > #### Fuentes:
-> - http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html
-> - https://wiki.osdev.org/CPU_Registers_x86-64
-> - https://www.cs.oberlin.edu/~bob/cs331/Notes%20on%20x86-64%20Assembly%20Language.pdf
-> - https://en.wikipedia.org/wiki/X86_calling_conventions#System_V_AMD64_ABI
+> - [X86-64 Architecture Guide, MIT](http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html)
+> - [CPU Registers x86-64, OSDev Wiki](https://wiki.osdev.org/CPU_Registers_x86-64)
+> - [Notes on x86-64 Assembly Language, Oberlin College](https://www.cs.oberlin.edu/~bob/cs331/Notes%20on%20x86-64%20Assembly%20Language.pdf)
+> - [x86_64 calling conventions, Wikipedia](https://en.wikipedia.org/wiki/X86_calling_conventions#System_V_AMD64_ABI)
 
 
 ### __Adressing modes__
 `section:disp(base, index, scale)` = `section:[base + index*scale + disp]`
-where `base` and `index` are the optional 64-bit registers, `disp` is the optional displacement, and scale, taking the values 1, 2, 4, and 8, multiplies index to calculate the address of the operand. If no scale is specified, scale is taken to be 1.
-Section specifies the optional section register for the memory operand, and may override the default section register (NO USADO EN x86_64);
+Donde `base` y `index` son los registros de 64 bits opcionales, `disp` es el displacement opcional, y scale, toma los valores inmediatos 1, 2, 4, y 8, multiplica el indice (`index`) para calcular la direccion del operando. Si no se especifica el valor de `scale`, es tomado como el valor 1.
 
-`-4(%ebp)`: base is `%ebp`, disp is `-4`
+`section`  especifica el registro de sección opcional para el operando de memoria y puede anular el registro de sección predeterminado (NO USADO EN x86_64);
 
-The x86-64 architecture adds an RIP (instruction pointer relative) addressing. This addressing mode is specified by using ‘rip’ as a base register. Only constant offsets are valid. For example:
+`-4(%ebp)`: base es `%ebp`, disp es `-4`
+
+La arquitectura x86-64 agrega direccionamiento RIP (relativo al instruction pointer). Este modo de direccionamiento se especifica mediante el uso de `%rip` como registro base. Solo son válidos los desplazamientos constantes. Por ejemplo:
 
 `1234(%rip)` = `[rip + 1234]`
-Points to the address 1234 bytes past the end of the current instruction.
+Apunta a la dirección 1234 bytes después de la instrucción actual.
 
-`symbol(%rip)` Intel: `[rip + symbol]`
-Points to the symbol in RIP relative way, this is shorter than the default absolute addressing.
-
-Todos los numeros son bytes.
+`simbolo(%rip)` = `[rip + simbolo]`
+Apunta al símbolo de manera relativa al instruction pointer, esto es más corto que la direccionamiento absoluto predeterminado.
 
 > #### Fuente:
-> - https://sourceware.org/binutils/docs-2.39/as.html#i386_002dMemory
+> - [Guide to the GNU Assembler: Memory References, Sourceware](https://sourceware.org/binutils/docs-2.39/as.html#i386_002dMemory)
 
 
 ### __Labels Locales *(labels numéricos)*__
 
-A numeric label consists of a single digit in the range zero (0) through nine (9) followed by a colon (:). Numeric labels are used only for local reference and are not included in the object file's symbol table. Numeric labels have limited scope and can be redefined repeatedly.
+Una etiqueta numérica consiste en un solo dígito en el rango de cero (0) a nueve (9) seguido de dos puntos (:). Las etiquetas numéricas sólo se utilizan como referencia local y no se incluyen en la tabla de símbolos del fichero objeto. Las etiquetas numéricas tienen un alcance limitado y pueden redefinirse repetidamente.
 
-When a numeric label is used as a reference (as an instruction operand, for example), the suffixes b (“backward”) or f (“forward”) should be added to the numeric label. For numeric label N, the reference Nb refers to the nearest label N defined before the reference, and the reference Nf refers to the nearest label N defined after the reference. The following example illustrates the use of numeric labels:
+Cuando una etiqueta numérica se utiliza como referencia (como operando de una instrucción, por ejemplo), deben añadirse los sufijos `b` ("Backward") o `f` ("Forward") a la etiqueta numérica. Para la etiqueta numérica N, la referencia Nb se refiere a la etiqueta N más cercana definida antes de la referencia, y la referencia Nf se refiere a la etiqueta N más cercana definida después de la referencia. El siguiente ejemplo ilustra el uso de etiquetas numéricas:
 
 ```gas
-1:          // define numeric label "1"
-one:        // define symbolic label "one"
+1:          // define etiqueta numérica "1"
+one:        // define etiqueta simbólica "one"
 
-// ... assembler code ...
+// ... código ensamblador ...
 
-jmp   1f    // jump to first numeric label "1" defined
-            // after this instruction
-            // (this reference is equivalent to label "two")
+jmp 1f      // salta a la primera etiqueta numérica "1" definida
+            // después de esta instrucción
+            // (esta referencia equivale a la etiqueta "two")
 
-jmp   1b    // jump to last numeric label "1" defined
-            // before this instruction
-            // (this reference is equivalent to label "one")
+jmp 1b // salta a la última etiqueta numérica "1" definida
+            // antes de esta instrucción
+            // (esta referencia equivale a la etiqueta "uno")
 
-1:          // redefine label "1"
-two:        // define symbolic label "two"
+1: // redefine la etiqueta "1
+two:        // define etiqueta simbólica "dos
 
-jmp   1b    // jump to last numeric label "1" defined
-            // before this instruction
-            // (this reference is equivalent to label "two")
+jmp 1b // saltar a la última etiqueta numérica "1" definida
+            // antes de esta instrucción
+            // (esta referencia equivale a la etiqueta "dos")
 ```
 
-> #### Fuente:
-> https://docs.oracle.com/cd/E19120-01/open.solaris/817-5477/esqaq/index.html
+
+> #### Fuentes:
+> - [x86 Assembly Language Reference Manual: Numeric Labels, Oracle docs](https://docs.oracle.com/cd/E19120-01/open.solaris/817-5477/esqaq/index.html)
+> - [Guide to the GNU Assembler: Symbol Names, Sourceware](https://sourceware.org/binutils/docs-2.39/as.html#Symbol-Names)
 
 
 ### __Implementacion operadores__
@@ -151,13 +152,13 @@ jmp   1b    // jump to last numeric label "1" defined
 
 
 > #### Fuente:
-> [Intel® 64 and IA-32 Architectures Developer's Manual](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html)
+> - [Intel® 64 and IA-32 Architectures Developer's Manual](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html)
 
 ### __Uso de PRINTF (y otras funciones cantidad de parametros variable)__
 Para envias parametros float, o double, se tienen que usar los registros `%xmm0 - %xmm7`. Pero antes de llamar la funcion, se debe indicar la cantidad de registros xmm usado, en el registro `%al` (osea `%rax`), pero al parecer, en printf, con indicar que existen registros de punto flotante (con un numero distinto de 0) alcanza.
 
 > #### Fuente: 
-> [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf)
+> - [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf)
 
 
 
@@ -189,7 +190,7 @@ despues_if:
 Tambien, en vez de hacer una comparacion con 0; se podría tomar directamente la comparacion que se realiza dentro de la expresion del if, y decidir cual de todos los saltos condicionales realizar, de manera de ahorrar instrucciones, pero resultaría mucho más complejo tener en cuenta todas las combinaciones posibles.
 
 > #### Fuente:
-> https://en.wikibooks.org/wiki/X86_Disassembly/Branches
+> - [x86 Disassembly Branches, Wikibooks](https://en.wikibooks.org/wiki/X86_Disassembly/Branches)
 
 
 
@@ -220,8 +221,8 @@ afuera_while:
 //despues while
 ```
 
-> #### Fuente
-> https://en.wikibooks.org/wiki/X86_Disassembly/Loops
+> #### Fuente:
+> - [x86 Disassembly Loops, Wikibooks](https://en.wikibooks.org/wiki/X86_Disassembly/Loops)
 
 
 ### __¿Cómo se traduce call a esta plataforma o VM?__
@@ -236,9 +237,9 @@ Esto se puede ver en la [tabla de registros](#registros), en la columna de calle
 
 En el caso de llamar a una funcion externa, el stack pointer debe estar alineado a 16 bytes. En el caso de funciones internas, sería correcto si se quisiera seguir los lineamientos ABI, pero no resulta necesario para su ejecución.
 
-> #### Fuente: 
-> http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html
-> [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf)
+> #### Fuentes: 
+> - [X86-64 Architecture Guide, MIT](http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html)
+> - [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf)
 
 
 
@@ -248,9 +249,9 @@ Lo primero que se tiene que hacer, es restaurar los registros callee-saved que a
 
 Una vez hicimos esto, tenemos que almacenar en el registro "%rax" el valor de retorno de la funcion, y luego, podemos utilizar la instrucción `ret`. Esta instrucción ya se ocupa de volver a la ultima ubicacion donde se realizó un `call`.
 
-> #### Fuente: 
-> http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html
-> [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf)
+> #### Fuentes: 
+> - [X86-64 Architecture Guide, MIT](http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html)
+> - [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf)
 
 
 ### __¿Cómo se traduce DeclarationStatement (declaración de funciones) a esta plataforma o VM?__
@@ -268,8 +269,8 @@ Lo que hace la instruccion es pushear el actual _frame pointer_, y luego asignar
 `leave` no recibe ningun parametro, y simplemente mueve el _stack pointer_ al _frame pointer_ y popea el anterior _frame pointer_ y lo restaura en el registro. Esta instruccion es usada antes de la instruccion `ret` para volver a la _funcion padre_
 
 > #### Fuente:
-> http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html
-> [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf)
+> - [X86-64 Architecture Guide, MIT](http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html)
+> - [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf)
 
 
 ### __¿Cómo se traducen las expresiones a esta plataforma o VM?__
@@ -329,10 +330,9 @@ Tambien, podría hacer la llamada directamente al sistema operativo a travez de 
 Hay que tener en cuenta que en el sistema operativo destruye el contenido de `%rcx` y `%r11`, por lo que habría que guardarlos si se quiere conservarlos.
 
 > #### Fuente: 
-> [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf)
-> http://articles.manugarg.com/systemcallinlinux2_6.html
-> https://stackoverflow.com/questions/15168822/intel-x86-vs-x64-system-call
-> https://blog.packagecloud.io/the-definitive-guide-to-linux-system-calls/
+> - [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf
+> - [Intel x86 vs x64 system call, Stackoverflow](https://stackoverflow.com/questions/15168822/intel-x86-vs-x64-system-call)
+> - [The definitive guide to Linux system calls, Package Cloud](https://blog.packagecloud.io/the-definitive-guide-to-linux-system-calls/)
 
 ### __¿Cuán facil fue aprender esta plataforma o VM? ¿Por qué?__
 
