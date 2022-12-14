@@ -94,25 +94,25 @@ A numeric label consists of a single digit in the range zero (0) through nine (9
 When a numeric label is used as a reference (as an instruction operand, for example), the suffixes b (“backward”) or f (“forward”) should be added to the numeric label. For numeric label N, the reference Nb refers to the nearest label N defined before the reference, and the reference Nf refers to the nearest label N defined after the reference. The following example illustrates the use of numeric labels:
 
 ```gas
-1:          / define numeric label "1"
-one:        / define symbolic label "one"
+1:          // define numeric label "1"
+one:        // define symbolic label "one"
 
-/ ... assembler code ...
+// ... assembler code ...
 
-jmp   1f    / jump to first numeric label "1" defined
-            / after this instruction
-            / (this reference is equivalent to label "two")
+jmp   1f    // jump to first numeric label "1" defined
+            // after this instruction
+            // (this reference is equivalent to label "two")
 
-jmp   1b    / jump to last numeric label "1" defined
-            / before this instruction
-            / (this reference is equivalent to label "one")
+jmp   1b    // jump to last numeric label "1" defined
+            // before this instruction
+            // (this reference is equivalent to label "one")
 
-1:          / redefine label "1"
-two:        / define symbolic label "two"
+1:          // redefine label "1"
+two:        // define symbolic label "two"
 
-jmp   1b    / jump to last numeric label "1" defined
-            / before this instruction
-            / (this reference is equivalent to label "two")
+jmp   1b    // jump to last numeric label "1" defined
+            // before this instruction
+            // (this reference is equivalent to label "two")
 ```
 
 > #### Fuente:
@@ -126,7 +126,7 @@ jmp   1b    / jump to last numeric label "1" defined
 | "+"       | addq             | addsd                |                                 |
 | "-"       | subq             | subsd                |                                 |
 | "*"       | imulq            | mulsd                |                                 |
-| "/" int   | cqto(cqo);idivq  | NO                   | rdx:rax/reg; rax:cociente       | //Tengo que convertir entero a flotante para div exacta |
+| "/" int   | cqto(cqo);idivq  | NO                   | rdx:rax/reg; rax:cociente       | 
 | "/" float | NO               | divsd                | hace division exacta            |
 | "^"       | call pow?        | call pow?            | implementado solo int positivo |
 | "%"       | cqto(cqo);idivq  | NO NATIVO            | rdx:rax/reg; rdx:resto          |
