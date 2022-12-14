@@ -314,7 +314,16 @@ Siendo `d` la ubicacion del primer elemento del array dentro del stack, `%rbp`, 
 Si el indice del elemento al acceder lo se en tiempo de compilacion, podría ahorrar ese metodo de addressing, y calcular directamente el displacement requerido para llegar al valor deseado.
 
 ### __¿Cómo implementarías una interfaz con la plataforma (uso de syscalls, librerías standard, etc) en este target?__
+En Assembly x86_64, se puede hacer uso de la librería estandar para llamar a las funciones del sistema. En el caso de mi implementacion, hago uso de la librería estandar para llamar a printf e imprimir el contenido de la variable `out`. Para hacer esta llamada solo tengo que seguir el procedimiento estandar para hacer llamadas a funciones, como lo describe el ABI.
 
+Tambien, podría hacer la llamada directamente al sistema operativo a travez de una **syscall**
+Para esto, solo se pueden cargar 6 parametros en los registros: `%rdi`, `%rsi`, `%rdx`, `%r10`, `%r8` y `%r9`, y
+en el registro `%rax` se indica el numero de syscall que queremos llamar.
+
+
+
+> #### Fuente: 
+> [System V Application Binary Interface AMD64](https://raw.githubusercontent.com/wiki/hjl-tools/x86-psABI/x86-64-psABI-1.0.pdf)
 
 ### __¿Cuán facil fue aprender esta plataforma o VM? ¿Por qué?__
 
