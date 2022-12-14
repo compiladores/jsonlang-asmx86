@@ -348,7 +348,9 @@ Definitivamente recomendaría esta plataforma a estudiantes futuros, porque resu
 
 
 ### __Liste ventajas y desventajas de trabajar en esta plataforma o VM.__
-La principal desventaja de la plataforma, es lo antigua que es. Al ser creada a mediados de los 70's y al ser una plataforma totalmente retrocompatible, hay demasiadas instrucciones y documentacion, que ni siquiera son usadas actualmente. Esto hace que el desarrollo para esta plataforma termine siendo innecesariamente complejo, cuando realmente las instrucciones y documentacion relevantes a dia de hoy, no es tanta.
-Otra desventaja es la practicamente nula portabilidad. Un programa x86_64 puede ejecutarse unicamente en un cpu x86_64, e incluso si usa instrucciones de alguna de las extensiones, solo puede funcionar en los CPUs que posean estas extensiones. Incluso teniendo un procesador con la correcta arquitectura, y extensiones, cambiar de sistema operativo puede causar que, por los lineaimentos para llamadas a funciones, y las llamadas al sistema operativo (syscalls), el programa deje de ser compatible.
+La principal desventaja de la plataforma, es lo antigua que es. Al ser creada a mediados de los 70's y al ser una plataforma totalmente retrocompatible, hay demasiadas instrucciones y documentacion, que ni siquiera son usadas actualmente. Esto hace que el desarrollo para esta plataforma termine siendo innecesariamente complejo, cuando realmente las instrucciones relevantes a dia de hoy, no son tantas.
+Otra desventaja, es que el manejo de memoria que es basado en stack, o en memoria estatica de programa; salvo que quieras llevar a más complejidad, haciendo uso de mallocs. Por lo que no tenes acceso a memoria aleatoria como si se tenía en la maquina virtual del Lab6.
 
-//TODO
+Pero su mayor ventaja es que al ser la arquitectura más popular para computadoras de escritorio y servidores, hay muchas herramientas y documentacion que si son utiles, de otros desarrolladores que trabajan con esta plataforma.
+Otra de sus ventajas, es el hecho de que se pueda usar GCC para generar archivos Assembly a partir de codigo C, para ayudar a entender las estructuras y funcionamiento de la plataforma.
+
