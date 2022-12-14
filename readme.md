@@ -68,7 +68,7 @@ Callee-Saved, significa que el registro tiene que ser preservado su estado por l
 
 ### __Adressing modes__
 `section:disp(base, index, scale)` = `section:[base + index*scale + disp]`
-where `base` and `index` are the optional 64-bit `base` and `index` registers, `disp` is the optional displacement, and scale, taking the values 1, 2, 4, and 8, multiplies index to calculate the address of the operand. If no scale is specified, scale is taken to be 1.
+where `base` and `index` are the optional 64-bit registers, `disp` is the optional displacement, and scale, taking the values 1, 2, 4, and 8, multiplies index to calculate the address of the operand. If no scale is specified, scale is taken to be 1.
 Section specifies the optional section register for the memory operand, and may override the default section register (NO USADO EN x86_64);
 
 `-4(%ebp)`: base is `%ebp`, disp is `-4`
@@ -93,7 +93,7 @@ A numeric label consists of a single digit in the range zero (0) through nine (9
 
 When a numeric label is used as a reference (as an instruction operand, for example), the suffixes b (“backward”) or f (“forward”) should be added to the numeric label. For numeric label N, the reference Nb refers to the nearest label N defined before the reference, and the reference Nf refers to the nearest label N defined after the reference. The following example illustrates the use of numeric labels:
 
-```as
+```gas
 1:          / define numeric label "1"
 one:        / define symbolic label "one"
 
@@ -176,7 +176,7 @@ if (5) {
 ```
 
 Simplificandolo, se convierte en algo como:
-```as
+```gas
 //antes if
     cmpq    $0, $5 //Se setea el flag equal a 0
     je      despues_if
@@ -207,7 +207,7 @@ while (x==5) {
 ```
 
 se convierte en:
-```as
+```gas
 //antes while
 inicio_while:
     cmpq    x, $5
@@ -273,7 +273,7 @@ Lo que hace la instruccion es pushear el actual _frame pointer_, y luego asignar
 
 #### __- Variables Globales__
 En x86_64, las variables globales, se almacenan en etiquetas dentro del codigo assembler del programa, y se utilizan usandolas como direccion relativa a la instruccion actual. Suponiendo una variable global `a`, que tiene de contenido el numero 10, el codigo assembler lo representaía como:
-```as
+```gas
 var_a: .quad 10
 ```
 Y si quisiera utilizar este valor, o modificarlo, accedo a el con la expresion `var_a(%rip)`.
@@ -307,7 +307,11 @@ Luego, en los casos no bases, popeo un valor al registro B, luego al registro A;
 
 
 ### __¿Cómo implementarías arrays de largo fijo en este target?__
-
+Los arrays de tamaño fijo, se podrían implementar como las variables locales, pero en vez de ocupar solo 8 bytes, ocupan n*8 bytes, segun la cantidad de elementos que almacenan. Esto agregaría la complejidad de que habría que saber cuantos espacios hay que avanzar hasta la siguiente variable, pero sería algo que se podría calcular en tiempo de compilacion.
+El array, tambien se encontraría invertido en el stack. Siendo el primer valor el mas cercano al stack pointer, y el ultimo valor, el más lejano.
+Para acceder a cada uno de los indices del array, se puede usar uno de los [adressing modes](#adressing-modes), en vez de acceder con `d(%rbp)`, como haría con una variable normal, movería el indice al que quiero acceder a un registro, por ejemplo `%rax`, y accedería a la dirección de la manera: `d(%rbp, %rax, 8)`.
+Siendo `d` la ubicacion del primer elemento del array dentro del stack, `%rbp`, la ubicacion de la base del stack, `%rax`, el indice al que quiero acceder al stack, y `8` el tamaño de cada elemento del stack, en este caso 8 por trabajar con numeros de 8 bytes.
+Si el indice del elemento al acceder lo se en tiempo de compilacion, podría ahorrar ese metodo de addressing, y calcular directamente el displacement requerido para llegar al valor deseado.
 
 ### __¿Cómo implementarías una interfaz con la plataforma (uso de syscalls, librerías standard, etc) en este target?__
 
