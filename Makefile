@@ -74,7 +74,7 @@ define LAUNCH_JSON
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "asm build active file",
+            "preLaunchTask": "asm build programa.s file",
             "miDebuggerPath": "/usr/bin/gdb"
         }
     ]

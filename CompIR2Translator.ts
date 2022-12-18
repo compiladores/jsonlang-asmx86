@@ -142,7 +142,7 @@ const unops_map:Record<"-"|"!"|"~", Array<CompIR3>> = {
   ]
 }
 
-function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
+function translateOne(stmt: StatementIR2<Expression>, avaible_registers: Set<Register>): StatementIR3[] {
   stmt;
   if (typeof stmt != "object" || !("cmpq" in stmt || "set" in stmt || "call" in stmt || "return" in stmt))
     return [stmt];
@@ -150,11 +150,26 @@ function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
   if ("cmpq" in stmt) {
     const ir3: StatementIR3[] = [];
 
-    ir3.push(...translateExpr(stmt.cmpq[0]));
-    ir3.push(...translateExpr(stmt.cmpq[1]));
+    const iteratror = avaible_registers.values();
     
-    ir3.push({popq: "rbx"})
-    ir3.push({popq: "rax"})
+    const ret_reg1 = iteratror.next().value;
+    const ret_reg2 = iteratror.next().value;
+
+    avaible_registers.delete(ret_reg1);
+    avaible_registers.delete(ret_reg2);
+
+    const result1 = translate_Expr(stmt.cmpq[0], avaible_registers, ret_reg1);
+    const result2 = translate_Expr(stmt.cmpq[1], avaible_registers, ret_reg2);
+
+    ir3.push(...result1[0]);
+    ir3.push(...result2[0]);
+    
+    ir3.push((result2[1]) ? {popq: "rbx"} : {movq: [ret_reg2, "rbx"]});
+    ir3.push((result1[1]) ? {popq: "rax"} : {movq: [ret_reg1, "rax"]});
+
+    
+    avaible_registers.add(ret_reg1);
+    avaible_registers.add(ret_reg2);
 
 
     ir3.push({cmpq: ["rax", "rbx"]});
@@ -165,17 +180,21 @@ function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
   if ("set" in stmt) {
     const ir3: StatementIR3[] = [];
 
-    ir3.push(...translateExpr(stmt.value));
+    const result = translate_Expr(stmt.value, avaible_registers, "rax")
 
-    ir3.push({popq: stmt.set})
+    ir3.push(...result[0]);
+
+    ir3.push((result[1]) ? {popq: stmt.set} : {movq: ["rax", stmt.set]});
 
     return ir3;
   }
 
   if ("call" in stmt) {
+
     const instrucciones_arg: StatementIR3[] = [];
 
-    const registers:Data[] = ["rdi", "rsi", "rdx", "rcx", "r8", "r9"];
+    const registers:Register[] = ["rdi", "rsi", "rdx", "rcx", "r8", "r9"];
+
 
     while (stmt.args.length > 0 && registers.length > 0) {
       const parameter = stmt.args.shift()
@@ -184,13 +203,14 @@ function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
         throw new Error("PARAMETRO O REGISTRO ES UNDEFINED");       
       }
 
-      const expression = translateExpr(parameter)
-      instrucciones_arg.push(...expression);
-      instrucciones_arg.push({popq: register})
+      const expression = translate_Expr(parameter, avaible_registers, register)
+      instrucciones_arg.push(...expression[0]);
     }
+    
 
     for (const expressions of stmt.args.reverse()) {
-      instrucciones_arg.push(...translateExpr(expressions));
+      instrucciones_arg.push(...translate_Expr(expressions, avaible_registers, "rax")[0]);
+      instrucciones_arg.push({pushq: "rax"});
     }
 
     return [
@@ -203,8 +223,7 @@ function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
   if ("return" in stmt) {
 
     return [
-      ...translateExpr(stmt.return),
-      {popq: "rax"},
+      ...translate_Expr(stmt.return, avaible_registers, "rax")[0],
       "return"
     ]
   }
@@ -213,19 +232,103 @@ function translateOne(stmt: StatementIR2<Expression>): StatementIR3[] {
 }
 
 export function translate(code: CompIR2[]): CompIR3[] {
-  return code.flatMap((command) => translateOne(command));
+  const avaible_registers: Set<Register> = new Set(
+    ["r10"]);
+
+
+  return code.flatMap((command) => translateOne(command, avaible_registers));
+}
+
+function translate_Expr(expr: Expression, avaible_registers: Set<Register>, return_register: Register | undefined): [StatementIR3[], boolean] {
+  if (return_register == undefined) {
+    return [translateExpr_stack(expr), true]
+  }
+  
+  
+  if (typeof expr == "number") {
+    return [[{movq: [expr, return_register]}],false];
+  }
+
+  if ("literal" in expr) {
+    return [[{movq: [{literal: expr.literal}, return_register]}], false];
+  }
+
+  if ("call" in expr) {
+    
+    return [[...translateOne(expr, avaible_registers),
+      {movq: ["rax", return_register]}
+    ], false];
+    
+
+  }
+
+  if ("unop" in expr) {
+
+    const ret_reg = avaible_registers.values().next().value;
+    avaible_registers.delete(ret_reg);
+
+    const inner_expr = translate_Expr(expr.arg, avaible_registers, ret_reg);
+
+    const operation = unops_map[expr.unop];
+    
+    avaible_registers.add(ret_reg);
+
+    return [[
+      ...inner_expr[0],
+      (inner_expr[1]) ? {popq: "rax"} : {movq: [ret_reg, "rax"]},
+      ...operation,
+      {movq: ["rax", return_register]},
+    ], false];
+  }
+  
+
+
+  if ("binop" in expr) {
+
+    const iteratror = avaible_registers.values();
+    
+    const ret_reg1 = iteratror.next().value;
+    const ret_reg2 = iteratror.next().value;
+
+    avaible_registers.delete(ret_reg1);
+    avaible_registers.delete(ret_reg2);
+
+    const left_expr = translate_Expr(expr.argl, avaible_registers, ret_reg1);
+    const right_expr = translate_Expr(expr.argr, avaible_registers, ret_reg2);
+
+    
+    const operation = binops_map[expr.binop];
+
+    avaible_registers.add(ret_reg1);
+    avaible_registers.add(ret_reg2);
+  
+
+    return [[
+      ...left_expr[0],
+      ...right_expr[0],
+      (right_expr[1]) ? {popq: "rbx"} : {movq: [ret_reg2, "rbx"]},
+      (left_expr[1]) ? {popq: "rax"} : {movq: [ret_reg1, "rax"]},
+      ...operation,
+      {movq: ["rax", return_register]}
+    ], false];
+  }
+
+  throw new Error("No se encontró el tipo de expresion");
+
+
 }
 
 //va recursivcamente a izquierda, luego derecha
 // caso base: pushea en stack el valor
 // no caso base, popea en B, popea en A, realiza op B,A; luego pushea A
-function translateExpr(expr: Expression): StatementIR3[] {
+function translateExpr_stack(expr: Expression): StatementIR3[] {
   if (typeof expr == "number") {
     return [{pushq: expr}];
   }
 
   if ("literal" in expr) {
 
+    //si es mayor que un literal de 32bits, tengo que usar la instruccion movq, que permite literales de 64bits
     if (expr.literal > 2147483647 || expr.literal < -2147483647) {
       return [
         {movq: [{literal: expr.literal}, "rax"]},
@@ -237,12 +340,12 @@ function translateExpr(expr: Expression): StatementIR3[] {
   }
 
   if ("call" in expr) {
-    return [...translateOne(expr),
+    return [...translateOne(expr, new Set()),
             {pushq: "rax"}];
   }
 
   if ("unop" in expr) {
-    const inner_expr = translateExpr(expr.arg);
+    const inner_expr = translateExpr_stack(expr.arg);
 
 
     const operation = unops_map[expr.unop];
@@ -257,8 +360,8 @@ function translateExpr(expr: Expression): StatementIR3[] {
 
   if ("binop" in expr) {
     //TODO: IMPLEMENTAR TODOS LOS UNOPS. TAL VEZ CON UN DICCIONARIO?
-    const left_expr = translateExpr(expr.argl);
-    const right_expr = translateExpr(expr.argr);
+    const left_expr = translateExpr_stack(expr.argl);
+    const right_expr = translateExpr_stack(expr.argr);
 
     
     const operation = binops_map[expr.binop];
