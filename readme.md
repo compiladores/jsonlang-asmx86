@@ -28,12 +28,12 @@ Se utilizo una estructura similar al del Lab6, donde el programa se traduce 5 ve
 4. CompIR3Translator: Elimina funciones, agrega declaracion main, printeo de variable `out`
 5. CompIR4Translator: Convierte array de objetos a string a escribir en programa.s
 
-Decidí eliminar el paso de eliminar las etiquetas, porque me pareció que es una parte integral de la estructura de un archivo de Assembly.
+Decidí eliminar el paso de eliminar las etiquetas, porque me pareció que las etiquetas son una parte integral de la estructura de un archivo de Assembly.
 
 ## Documentación
 
 ### __Herramienta usada para la investigacion__
-[Godbolt](gcc.godbolt.org) que permite escribir un programa en codigo C, y ver cual es el resultado en assembler. Permite ver además que instrucciones Assembler representan cada instruccion del codigo C.
+[Godbolt](gcc.godbolt.org) es una pagina que permite escribir un programa en codigo C, y ver cual es el resultado en assembler. Permite ver además que instrucciones Assembler representan cada instruccion del codigo C. Y tampoco se limita a C, y a assembly x86_64, sino que permite ver la compilacion a microcodigo de otros lenguajes, o la compilacion a otras arquitecturas.
 
 ### __Registros__
 
@@ -92,24 +92,24 @@ Apunta al símbolo de manera relativa al instruction pointer, esto es más corto
 
 Una etiqueta numérica consiste en un solo dígito en el rango de cero (0) a nueve (9) seguido de dos puntos (:). Las etiquetas numéricas sólo se utilizan como referencia local y no se incluyen en la tabla de símbolos del fichero objeto. Las etiquetas numéricas tienen un alcance limitado y pueden redefinirse repetidamente.
 
-Cuando una etiqueta numérica se utiliza como referencia (como operando de una instrucción, por ejemplo), deben añadirse los sufijos `b` ("Backward") o `f` ("Forward") a la etiqueta numérica. Para la etiqueta numérica N, la referencia Nb se refiere a la etiqueta N más cercana definida antes de la referencia, y la referencia Nf se refiere a la etiqueta N más cercana definida después de la referencia. El siguiente ejemplo ilustra el uso de etiquetas numéricas:
+Cuando una etiqueta numérica se utiliza como referencia (como operando de una instrucción, por ejemplo), deben añadirse los sufijos `b` *("Backward")* o `f` *("Forward")* a la etiqueta numérica. Para la etiqueta numérica N, la referencia Nb se refiere a la etiqueta N más cercana definida antes de la referencia, y la referencia Nf se refiere a la etiqueta N más cercana definida después de la referencia. El siguiente ejemplo ilustra el uso de etiquetas numéricas:
 
 ```gas
 1:          // define etiqueta numérica "1"
-one:        // define etiqueta simbólica "one"
+uno:        // define etiqueta simbólica "uno"
 
 // ... código ensamblador ...
 
 jmp 1f      // salta a la primera etiqueta numérica "1" definida
             // después de esta instrucción
-            // (esta referencia equivale a la etiqueta "two")
+            // (esta referencia equivale a la etiqueta "dos")
 
 jmp 1b // salta a la última etiqueta numérica "1" definida
             // antes de esta instrucción
             // (esta referencia equivale a la etiqueta "uno")
 
 1: // redefine la etiqueta "1
-two:        // define etiqueta simbólica "dos
+dos:        // define etiqueta simbólica "dos"
 
 jmp 1b // saltar a la última etiqueta numérica "1" definida
             // antes de esta instrucción
@@ -125,29 +125,29 @@ jmp 1b // saltar a la última etiqueta numérica "1" definida
 ### __Implementacion operadores__
 
 | operador  | long             | double               | notas                           |
-| --------- | ---------------- | -------------------- | ------------------------------- |
-| "+"       | addq             | addsd                |                                 |
-| "-"       | subq             | subsd                |                                 |
-| "*"       | imulq            | mulsd                |                                 |
-| "/" int   | cqto(cqo);idivq  | NO                   | rdx:rax/reg; rax:cociente       | 
-| "/" float | NO               | divsd                | hace division exacta            |
-| "^"       | call pow?        | call pow?            | implementado solo int positivo |
-| "%"       | cqto(cqo);idivq  | NO NATIVO            | rdx:rax/reg; rdx:resto          |
-| "&"       | andq             | ¿andpd?              | usa packed floats??             |
-| "\|"      | orq              | ¿orpd?               | usa packed floats??             |
-| ">>"      | sarq             | NO NATIVO            | %r >> imm8/%cl                  |
-| "<<"      | salq             | NO NATIVO            | %r \<\< imm8/%cl                |
-| "<"       | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329                     |
-| "<="      | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329                     |
-| ">"       | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329                     |
-| ">="      | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329                     |
-| "=="      | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329                     |
-| "~="      | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329                     |
+| --------- | ---------------- | -------------------- | -------------------------------- |
+| "+"       | addq             | addsd                |                                  |
+| "-"       | subq             | subsd                |                                  |
+| "*"       | imulq            | mulsd                |                                  |
+| "/" int   | cqto(cqo);idivq  | NO                   | rdx:rax/reg; rax:cociente        | 
+| "/" float | NO               | divsd                | hace division exacta             |
+| "^"       | **NO NATIVO**    | call pow             | Se llama a la una funcion externa|
+| "%"       | cqto(cqo);idivq  | **NO NATIVO**        | rdx:rax/reg; rdx:resto           |
+| "&"       | andq             | ¿andpd?              | ¿¿andpdusa packed floats??       |
+| "\|"      | orq              | ¿orpd?               | ¿¿ orpd usa packed floats??      |
+| ">>"      | sarq             | **NO NATIVO**        | %r >> imm8/%cl                   |
+| "<<"      | salq             | **NO NATIVO**        | %r \<\< imm8/%cl                 |
+| "<"       | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329 manual intel         |
+| "<="      | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329 manual intel         |
+| ">"       | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329 manual intel         |
+| ">="      | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329 manual intel         |
+| "=="      | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329 manual intel         |
+| "~="      | cmpq;set*cc*     | comisd;set*cc*       | pagina 1329 manual intel         |
 | "and"     | cmpq;je;cmpq;je  | comisd;je;comisd;je  |
 | "or"      | cmpq;jne;cmpq;je | comids;jne;comisd;je |
-| "neg"     | negq             | xorpd¿?              | ver en godbolt.net              |
-| "!"       |                  |                      | if equal 0; return 1; return 0; |
-| "~"       |                  |                      | bitwise not                     |
+| "neg"     | negq             |¿subpd? ¿mask and xor?| puedo restarlo, o invertir bit 0 para float|
+| "!"       |                  |                      | if equal 0; return 1; return 0;  |
+| "~"       | notq             |                      | (shift para ser deno compliant)  |
 
 
 
@@ -165,7 +165,7 @@ Para envias parametros float, o double, se tienen que usar los registros `%xmm0 
 ### __¿Cómo se traduce el if a esta plataforma o VM?__
 Para implementar el if en x86_64, se utilizan las flags (siendo estas: overflow, below, equal, sign, parity) y las instrucciones de salto condicional.
 
-Para esto, lo que hago, esejecutar una instruccion que me setee los flags correspondientes a la condicion (en el caso del tp mio, realizo la operacion necesaria, y luego hago un cmpq con 0; y con eso tengo las flags seteadas, para juego, realizar un salto condicional. 
+Para esto, lo que hago, es ejecutar una instruccion que me setee los flags correspondientes a la condicion (en el caso del tp mio, realizo la operacion necesaria, y luego hago un `cmpq` con 0; y con eso tengo las flags seteadas, para juego, realizar un salto condicional. 
 Como 0 es falso, si el flag de equal esta seteado (que el valor metido es igual a 0) hago un salto hacia afuera del if, para "saltearlo", y si el flag no esta seteado, quiere decir que la condicion era verdadera, por lo que continuo la ejecución dentro del bloque del if.
 
 Por lo que el siguiente codigo:
@@ -187,7 +187,7 @@ despues_if:
 //afuera if
 ```
 
-Tambien, en vez de hacer una comparacion con 0; se podría tomar directamente la comparacion que se realiza dentro de la expresion del if, y decidir cual de todos los saltos condicionales realizar, de manera de ahorrar instrucciones, pero resultaría mucho más complejo tener en cuenta todas las combinaciones posibles.
+Tambien, en vez de hacer una comparación con 0; se podría tomar directamente la comparacion que se realiza dentro de la expresion del if, y decidir cual de todos los saltos condicionales realizar, de manera de ahorrar instrucciones, pero resultaría mucho más complejo tener en cuenta todas las combinaciones posibles.
 
 > #### Fuente:
 > - [x86 Disassembly Branches, Wikibooks](https://en.wikibooks.org/wiki/X86_Disassembly/Branches)
@@ -197,7 +197,7 @@ Tambien, en vez de hacer una comparacion con 0; se podría tomar directamente la
 ### __¿Cómo se traduce el while a esta plataforma o VM?__
 
 Para realizar el while, se utiliza una tecnica similar al IF, solo que al final del "bloque del if" se encuentra un salto obligatorio al inicio. 
-De esta manera, primero se computa la expresion condicional, luego se realiza el cmpq, y finalmente se hace un salto hacia afuera del while, si la condicion es falsa. Si la condicion es verdadera, se continua la ejecucion del codigo dentro del while, hasta que se llega al final, donde hay un salto obligatorio, que te lleva hacia la instruccion que analiza la expresion condicional.
+De esta manera, primero se computa la expresion condicional, luego se realiza el `cmpq`, y finalmente se hace un salto hacia afuera del while, si la condicion es falsa. Si la condicion es verdadera, se continua la ejecucion del codigo dentro del while, hasta que se llega al final, donde hay un salto obligatorio, que te lleva hacia la instruccion que analiza la expresion condicional.
 
 Por lo que el siguiente codigo
 ```c
@@ -299,7 +299,7 @@ En el caso de usar numeros que ocupen 64bits (8bytes), la primera variable se en
 La arquitectura permite el uso de numeros literales en las operaciones. Sin embargo, las instrucciones de operaciones de _x86_64_ almacenan el resultado en el primer valor de la operacion (que es el segundo valor en la instruccion _x86_64_). Por lo que unicamente se puede utilizar un valor literal por operacion. En caso de que existan 2 numeros literales en una operacion (o uno solo en una operacion unitaria) el numero debe ser precalculado e insertar el resultado en el codigo assembler, o insertar los valores literales en registros, y luego hacer la operacion.
 
 > #### Aclaracion de mi implementacion.
-> Para mi implementacion, decidí que todos los numeros sean numeros de punto fijo, con 32 bits para la parte entera, y 32 bits para la parte decimal. Por esto, cada numero literal, antes de *almacenarlo* dentro de la instrucción, lo multiplico por 2**32, para llevarlo a la reperesentacion de punto fijo con 32 decimales.
+> Para mi implementacion, decidí que todos los numeros sean numeros de punto fijo, con 32 bits para la parte entera, y 32 bits para la parte fraccionaria. Por esto, cada numero literal, antes de *almacenarlo* dentro de la instrucción, lo multiplico por 2**32, para llevarlo a la reperesentacion de punto fijo con 32 digitos fraccionarios.
 
 #### __- Registros__
 Como se muestra en el [cuadro de registros](#--registros) esta arquitectura posee varios registros que pueden usarse para acelerar el acceso a variables, ya que es una memoria mucho más rapida que la RAM.
@@ -313,6 +313,13 @@ En el caso de operaciones anidadas, se podría hacer uso de los distintos regist
 
 En el caso base de encontrarme con una variable, registro, o literal, este valor lo pusheo al stack.
 Luego, en los casos no bases, popeo un valor al registro B, luego al registro A; y el resultado (que esta en el registro A) lo pusheo de nuevo al stack. Y así sucesivamente hasta la operacion principal.
+
+> #### Aclaracion de mi implementación.
+> Decidí no implementar exactamente igual algúnas de las operaciones, respecto a como se ejecutaban en la maquina virtual implementada en deno. Como decidí usar numeros de punto fijo, decidí implementar la mayoría de las operaciones, teniendo en cuenta los valores fraccopmarops.
+> Las operaciones que cambiaron son:
+> - `&` y `|`: En deno se truncan los operadores a numeros enteros, en mi caso, realizo la operacion con la parte fraccionaria también
+> - `>>` y `<<`: En deno, se truncan ambos operadores. En mi caso, solo trunco el segundo operador, haciendo que la operacion `a<<b` sea equivalente a `a/2^b`; y `a>>b` sea equivalente a `a*2^b`.
+> - `~`: En esta operacion dedicí dejarla como esta en deno, osea, truncando el operando, y luego realizando la operacion. Esto lo hice así porque si no fuera así, la operacion `~10` daría `-10.000[...]01`, aproximandose a `-10`. Este resulta ser un valor antintuitivo para la negacion bitwise. Por lo que decidí truncar el operando para que el resultado sea el esperado.
 
 
 ### __¿Cómo implementarías arrays de largo fijo en este target?__
