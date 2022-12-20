@@ -48,14 +48,10 @@ const binops_map:Record<Binops, Array<CompIR3>> = {
     {movq: ["rbx", "rcx"]},
     {sarq: [{literal: 32}, "rcx"]},
     {sarq: ["cl", "rax"]},
-    {movq: [{relative: "mask_int"}, "rbx"]},
-    {andq: ["rbx", "rax"]},
   ],
   "<<": [
     {movq: ["rbx", "rcx"]},
     {sarq: [{literal: 32}, "rcx"]},
-    {movq: [{relative: "mask_int"}, "rbx"]},
-    {andq: ["rbx", "rax"]},
     {salq: ["cl", "rax"]},
   ],
   "<": [
@@ -136,9 +132,9 @@ const unops_map:Record<"-"|"!"|"~", Array<CompIR3>> = {
     {salq: [{literal: 32}, "rax"]}
   ],
   "~": [
-    {negq: "rax"},
-    {movq: [{literal: 0x100000000}, "rbx"]},
-    {subq: ["rbx", "rax"]}
+    {sarq: [{literal: 32}, "rax"]},
+    {notq: "rax"},
+    {salq: [{literal: 32}, "rax"]}
   ]
 }
 
