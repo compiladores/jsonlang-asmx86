@@ -1,5 +1,16 @@
 # Implementacion de backend JSONLang a target ASM x86_64
 
+## Introduccion
+
+Este fue el trabajo final de la materia Lenguajes y Compiladores de la Facultad de Ingeniería de la UBA, dos cuatrimestres antes de que fuera agregada al plan nuevo.
+Para iniciar el trabajo, teníamos que elegir si desarollar el front end o back end de un compilador. En particular si elegiamos el back end, debíamos elegir una arquitectura para compilar. En mi caso elegí desarrollar el back end, para la arquitectura Assembly x86_64.
+Tuvimos que hacer una investigacion, y [presentacion preliminar](./Presentaciones/Eleccion_tp.md) sobra la eleccion que hicimos.
+
+Luego teníamos que desarrollar la parte del compilador que habiamos elegido, usando como base el compilador desarrollado para el TP de laboratorio 6.
+
+Finalmente, al final del cuatrimestre, debíamos entregar una [presentacion final](./Presentaciones/Presentacion_final.md), explicando más a fondo nuestro target, y el desarrollo que fuimos haciendo para el compilador.
+
+
 ## Quickstart, editor, dependencias
 
 ```
